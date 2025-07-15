@@ -1,0 +1,18 @@
+base_url: "https://thanos.nrp-nautilus.io/api/v1/query_range"
+step: 3600
+queries: 
+    status: |
+        kube_pod_status_phase{
+            phase="Running"
+        }
+    truth: |
+        kube_pod_container_resource_requests{
+            namespace!~"sdsu-jupyterhub.*|csusb.*|csu.*|cal-poly-humboldt.*|sdsu-.*|csun-.*|nsf-maica",
+            resource="%TYPE_STRING%",
+            node=~"rci-tide.*",
+            node!~"rci-tide-dtn.*|,rci-nrp-dtn.*"
+        }
+top5hours_blacklist:
+  - sdsu-rci-jh
+  - csu-tide-jupyterhub
+  - csusb-jupyterhub
