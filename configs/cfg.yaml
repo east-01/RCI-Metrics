@@ -1,0 +1,6 @@
+period: March25
+ingest:
+  PromQLIngestController:
+    - monthly
+    - tainted
+  IngestTimeline:
