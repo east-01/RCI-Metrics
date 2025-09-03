@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from data.identifier import TimeStampIdentifier
+from src.data.identifier import TimeStampIdentifier, AnalysisIdentifier
 from src.utils.timeutils import get_range_printable
 
 @dataclass(frozen=True)
@@ -29,3 +29,17 @@ class GrafanaIntermediateIdentifier(GrafanaIdentifier):
 
     def __str__(self) -> str:
         return f"intermediate grafana {self.query_cfg}, {self.query_type}, {self.type}, {get_range_printable(self.start_ts, self.end_ts, 3600)}"
+    
+@dataclass(frozen=True)
+class AvailableHoursIdentifier(AnalysisIdentifier):
+    type: str
+    config: str
+
+    def __hash__(self) -> int:
+        return hash((super().__hash__(), self.type, self.config))
+
+    def __eq__(self, other) -> bool:
+        return isinstance(other, AvailableHoursIdentifier) and super().__eq__(other) and self.type == other.type and self.config == other.config
+
+    def __str__(self) -> str:
+        return f"{self.analysis}({self.on}, {self.type}, {self.config})"
