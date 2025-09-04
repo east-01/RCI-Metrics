@@ -43,3 +43,7 @@ class AvailableHoursIdentifier(AnalysisIdentifier):
 
     def __str__(self) -> str:
         return f"{self.analysis}({self.on}, {self.type}, {self.config})"
+    
+@dataclass(frozen=True)
+class SummaryIdentifier(TimeStampIdentifier):
+    pass

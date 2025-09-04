@@ -3,12 +3,11 @@ ingest:
   PromQLIngestController:
     - monthly
     - tainted
-    - csu
   IngestTimeline:
 analysisdriver:
   AvailableHoursDriver:
     # Information about hardware configurations for each node.
-    default-infos:
+    default:
       rci-tide-cpu:
         cpu: 64
         gpu: 4
@@ -21,3 +20,8 @@ analysisdriver:
         cpu: 64
         gpu: 4
         node_cnt: 8
+  SummaryDriver:
+    top5hours_blacklist:
+      - sdsu-rci-jh
+      - csu-tide-jupyterhub
+      - csusb-jupyterhub

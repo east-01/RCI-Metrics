@@ -72,20 +72,22 @@ def analyze_hours_total(identifier, data_repo: DataRepository):
 	# Retrieve the corresponding analysis thats already been performed
 	df = data_repo.get_data(identifier)
 	total_hours = df['Hours'].sum()
-
-	print("TODO: hours.py:76 add back in hours check after implementing hours available benchmarks")
-	# src_id = identifier.find_base()
-	# src_as_timestamp = TimeStampIdentifier(src_id.start_ts, src_id.end_ts)
-	# print(src_id)
-	# avail_hrs_analysis_id = AvailableHoursIdentifier(src_as_timestamp, src_id.type + "hoursavailable", src_id.type, "default")
-	# avail_hrs = data_repo.get_data(avail_hrs_analysis_id)
-	# print(avail_hrs)
-
-	# # Ensure the hours we calculated doesn't exceed the maximum possible hours
-	# if(total_hours > avail_hrs):
-	# 	raise Exception(f"The total hours scheduled {total_hours} exceeds the maximum amount of resource hours available {avail_hrs}.")
-
+	
 	return total_hours
+
+def verify_hours(identifier: AnalysisIdentifier, data_repo: DataRepository):
+	total_hours = data_repo.get_data(identifier)
+
+	src_id = identifier.find_base()
+	src_as_timestamp = TimeStampIdentifier(src_id.start_ts, src_id.end_ts)
+	avail_hrs_analysis_id = AvailableHoursIdentifier(src_as_timestamp, src_id.type + "hoursavailable", src_id.type, "default")
+	avail_hrs = data_repo.get_data(avail_hrs_analysis_id)
+
+	# Ensure the hours we calculated doesn't exceed the maximum possible hours
+	if(total_hours > avail_hrs):
+		print(f"The total hours scheduled {total_hours} exceeds the maximum amount of resource hours available {avail_hrs}.")
+	
+	return total_hours <= avail_hrs
 
 def analyze_available_hours(identifier: GrafanaIdentifier, data_repo: DataRepository):
 	"""
