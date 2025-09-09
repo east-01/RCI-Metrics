@@ -16,6 +16,11 @@ class GrafanaIdentifier(TimeStampIdentifier):
 
     def __str__(self) -> str:
         return f"grafana {self.query_cfg}, {self.type}, {get_range_printable(self.start_ts, self.end_ts, 3600)}"
+    
+    def fs_str(self):
+        readable_period = get_range_printable(self.start_ts, self.end_ts, 3600)
+        readable_period_cleaned = readable_period.replace("/", "_").replace(" ", "T").replace(":", "")
+        return f"{self.type}-{readable_period_cleaned}"
 
 @dataclass(frozen=True)
 class GrafanaIntermediateIdentifier(GrafanaIdentifier):
@@ -46,4 +51,7 @@ class AvailableHoursIdentifier(AnalysisIdentifier):
     
 @dataclass(frozen=True)
 class SummaryIdentifier(TimeStampIdentifier):
-    pass
+    def __eq__(self, other) -> bool:
+        return isinstance(other, SummaryIdentifier) and super().__eq__(other) and self.start_ts == other.start_ts and self.start_ts == other.start_ts
+    def __str__(self) -> str:
+        return f"summary {self.start_ts}-{self.end_ts}"

@@ -38,6 +38,8 @@ class AvailableHoursDriver(AnalysisDriverPlugin):
             rci-nrp-gpu:
                 ...
         """
+        if(config_section is None):
+            return False
 
         for prim_key in config_section.keys():
             prim_subsect = config_section[prim_key]

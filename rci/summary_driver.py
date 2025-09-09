@@ -25,7 +25,6 @@ class SummaryData():
     gpu_df: pd.DataFrame
 
     def __str__(self):
-        
         return f"""Summary for {self.readable_period}
                 {'\n  '.join(self.summary_df.to_string().split('\n'))}
 
@@ -72,51 +71,56 @@ class SummaryDriver(AnalysisDriverPlugin):
             if(data_repo.contains(summary_id)):
                 continue
 
+            # NOTE: For future reference this can be keyed, so instead of only picking monthly 
+            #   identifiers we can add a key implementation and pick multiple
             cpu_src_id = GrafanaIdentifier(start_ts, end_ts, "cpu", "monthly")
             gpu_src_id = GrafanaIdentifier(start_ts, end_ts, "gpu", "monthly")
 
             if(not data_repo.contains(cpu_src_id) or not data_repo.contains(gpu_src_id)):
                 raise ValueError(f"Can't summarize {start_ts}-{end_ts} the data_repo is missing either the cpu or gpu SourceIdentifier.")
             
-            # Shorthand for the get_data method call for readability
-            gd = data_repo.get_data
-
-            # Collect analysis identifiers
-            cpuhours = AnalysisIdentifier(cpu_src_id, "cpuhours")
-            cpuhourstotal = AnalysisIdentifier(cpuhours, "cpuhourstotal")
-            cpujobs = AnalysisIdentifier(cpu_src_id, "cpujobs")
-            cpujobstotal = AnalysisIdentifier(cpujobs, "cpujobstotal")
-            jobstotal = AnalysisIdentifier(cpujobstotal, "jobstotal")
-
-            gpuhours = AnalysisIdentifier(gpu_src_id, "gpuhours")
-            gpuhourstotal = AnalysisIdentifier(gpuhours, "gpuhourstotal")
-            gpujobs = AnalysisIdentifier(gpu_src_id, "gpujobs")
-            gpujobstotal = AnalysisIdentifier(gpujobs, "gpujobstotal")
-
-            # Create the summary data frame
-            summary_df = pd.DataFrame({
-                "Analysis": ["CPU Only Jobs", "GPU Jobs", "Jobs Total", "CPU Hours", "GPU Hours"],
-                "Value": [gd(cpujobstotal), gd(gpujobstotal), gd(jobstotal), gd(cpuhourstotal), gd(gpuhourstotal)]
-            })
-
-            # Generate top 5 hours dataframes
-            if("top5hours_blacklist" in config_section.keys()):
-                top5_blacklist = config_section['top5hours_blacklist']
-            else:
-                top5_blacklist = []
-
-            cpu_df = gd(cpuhours)
-            cpu_df = cpu_df[cpu_df.apply(lambda row: row.iloc[0] not in top5_blacklist, axis=1)].iloc[0:5].reset_index(drop=True)
-
-            gpu_df = gd(gpuhours)
-            gpu_df = gpu_df[gpu_df.apply(lambda row: row.iloc[0] not in top5_blacklist, axis=1)].iloc[0:5].reset_index(drop=True)
-
-            readable_period = get_range_printable(cpu_src_id.start_ts, cpu_src_id.end_ts, 3600)
-            summary_data = SummaryData(
-                readable_period=readable_period,
-                summary_df=summary_df,
-                cpu_df=cpu_df,
-                gpu_df=gpu_df
-            )
-
+            summary_data = generate_analysis(data_repo, config_section, cpu_src_id, gpu_src_id)
             data_repo.add(summary_id, summary_data)
+
+def generate_analysis(data_repo: DataRepository, config_section: dict, cpu_src_id: GrafanaIdentifier, gpu_src_id: GrafanaIdentifier) -> SummaryData:
+
+    # Collect analysis identifiers
+    cpuhours = AnalysisIdentifier(cpu_src_id, "cpuhours")
+    cpuhourstotal = AnalysisIdentifier(cpuhours, "cpuhourstotal")
+    cpujobs = AnalysisIdentifier(cpu_src_id, "cpujobs")
+    cpujobstotal = AnalysisIdentifier(cpujobs, "cpujobstotal")
+    jobstotal = AnalysisIdentifier(cpujobstotal, "jobstotal")
+
+    gpuhours = AnalysisIdentifier(gpu_src_id, "gpuhours")
+    gpuhourstotal = AnalysisIdentifier(gpuhours, "gpuhourstotal")
+    gpujobs = AnalysisIdentifier(gpu_src_id, "gpujobs")
+    gpujobstotal = AnalysisIdentifier(gpujobs, "gpujobstotal")
+
+    # Shorthand for the get_data method call for readability
+    gd = data_repo.get_data
+
+    # Create the summary data frame
+    summary_df = pd.DataFrame({
+        "Analysis": ["CPU Only Jobs", "GPU Jobs", "Jobs Total", "CPU Hours", "GPU Hours"],
+        "Value": [gd(cpujobstotal), gd(gpujobstotal), gd(jobstotal), gd(cpuhourstotal), gd(gpuhourstotal)]
+    })
+
+    # Generate top 5 hours dataframes
+    if("top5hours_blacklist" in config_section.keys()):
+        top5_blacklist = config_section['top5hours_blacklist']
+    else:
+        top5_blacklist = []
+
+    cpu_df = gd(cpuhours)
+    cpu_df = cpu_df[cpu_df.apply(lambda row: row.iloc[0] not in top5_blacklist, axis=1)].iloc[0:5].reset_index(drop=True)
+
+    gpu_df = gd(gpuhours)
+    gpu_df = gpu_df[gpu_df.apply(lambda row: row.iloc[0] not in top5_blacklist, axis=1)].iloc[0:5].reset_index(drop=True)
+
+    readable_period = get_range_printable(cpu_src_id.start_ts, cpu_src_id.end_ts, 3600)
+    return SummaryData(
+        readable_period=readable_period,
+        summary_df=summary_df,
+        cpu_df=cpu_df,
+        gpu_df=gpu_df
+    )
