@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import pandas as pd
 
 from src.plugin_mgmt.plugins import AnalysisDriverPlugin
-from src.program_data.config import ConfigurationException
+from src.program_data.parameter_utils import ConfigurationException
 from src.program_data.program_data import ProgramData
 from src.data.data_repository import DataRepository
 from src.data.identifier import AnalysisIdentifier
@@ -11,7 +11,7 @@ from src.data.filters import filter_type
 from src.utils.timeutils import get_range_printable
 from src.plugin_mgmt.plugins import Analysis
 
-import plugins.rci.summary_driver as pkg_driver
+import plugins.rci.analyses.summary_driver as pkg_driver
 
 @dataclass(frozen=True)
 class SummaryAnalysis(Analysis):
@@ -66,7 +66,7 @@ class SummaryDriver(AnalysisDriverPlugin):
             start_ts = identifier.start_ts
             end_ts = identifier.end_ts
 
-            summary_id = SummaryIdentifier(start_ts, end_ts)
+            summary_id = pkg_driver.SummaryIdentifier(start_ts, end_ts)
 
             if(data_repo.contains(summary_id)):
                 continue

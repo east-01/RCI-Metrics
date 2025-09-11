@@ -2,14 +2,14 @@ from dataclasses import dataclass
 
 from src.plugin_mgmt.plugins import AnalysisDriverPlugin
 from src.data.data_repository import DataRepository
-from src.program_data.config import ConfigurationException
+from src.program_data.parameter_utils import ConfigurationException
 from src.program_data.program_data import ProgramData
 from src.data.identifier import TimeStampIdentifier
 from src.data.filters import filter_type
 from plugins.rci.rci_identifiers import AvailableHoursIdentifier
 from src.plugin_mgmt.plugins import Analysis
 
-import plugins.rci.available_hours_driver as pkg_driver
+import plugins.rci.analyses.available_hours_driver as pkg_driver
 
 @dataclass(frozen=True)
 class AvailHoursAnalysis(Analysis):

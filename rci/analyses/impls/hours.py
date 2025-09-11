@@ -2,9 +2,9 @@
 import pandas as pd
 
 from src.data.data_repository import DataRepository
-from plugins.promql.grafana_df_cleaning import has_time_column, clear_time_column, _extract_column_data
-from plugins.promql.grafana_df_analyzer import get_period
-from plugins.promql.settings import settings
+from plugins.rci.promql.grafana_df_cleaning import has_time_column, clear_time_column, _extract_column_data
+from plugins.rci.promql.grafana_df_analyzer import get_period
+from plugins.rci.promql.settings import settings
 from plugins.rci.rci_identifiers import GrafanaIdentifier, AvailableHoursIdentifier
 from src.data.identifier import *
 from src.utils.tideutils import *

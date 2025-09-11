@@ -1,42 +1,36 @@
-# import os
-# import pandas as pd
+import os
+import pandas as pd
 
-# from src.program_data.program_data import ProgramData
-# from src.data.data_repository import DataRepository
-# from src.data.filters import *
-# from src.data.saving.saver import Saver
-# from src.data.identifiers.identifier import *
+from src.program_data.program_data import ProgramData
+from src.data.data_repository import DataRepository
+from src.data.filters import *
+from src.plugin_mgmt.plugins import Saver
+from plugins.rci.rci_identifiers import GrafanaIdentifier, SummaryIdentifier
+from plugins.rci.analyses.summary_driver import SummaryData
 
-# class SummarySaver(Saver):
-#     def __init__(self, prog_data: ProgramData):
-#         self.prog_data = prog_data
-
-#     def save(self):
+class SummarySaver(Saver):
+    def save(self, prog_data: ProgramData, config_section: dict, base_path: str):
         
-#         data_repo: DataRepository = self.prog_data.data_repo
+        data_repo: DataRepository = prog_data.data_repo
 
-#         outdir = self.prog_data.args.outdir
+        identifiers = data_repo.filter_ids(filter_type(SummaryIdentifier))
+        for identifier in identifiers:
+            summary_data: SummaryData = data_repo.get_data(identifier)
 
-#         for identifier in data_repo.filter_ids(filter_type(SummaryIdentifier)):
-#             identifier: SourceIdentifier = identifier
-
-#             cpu_src_id = SourceIdentifier(identifier.start_ts, identifier.end_ts, "cpu")
-#             metadata = data_repo.get_metadata(cpu_src_id)
-
-#             summary_df, cpu_df, gpu_df = data_repo.get_data(identifier)
-
-#             try:
+            try:
                 
-#                 summary_filepath = os.path.join(outdir, f"{metadata['readable_period']} summary.xlsx")
-#                 with pd.ExcelWriter(summary_filepath, engine="xlsxwriter") as writer:
-#                     summary_df.to_excel(writer, sheet_name="Summary", index=False)
-#                     cpu_df.to_excel(writer, sheet_name="Top5 CPU NS", index=False)
-#                     gpu_df.to_excel(writer, sheet_name="Top5 GPU NS", index=False)
+                summary_filepath = os.path.join(base_path, f"{identifier.fs_str()}.xlsx")
+                with pd.ExcelWriter(summary_filepath, engine="xlsxwriter") as writer:
+                    summary_data.summary_df.to_excel(writer, sheet_name="Summary", index=False)
+                    summary_data.cpu_df.to_excel(writer, sheet_name="Top5 CPU NS", index=False)
+                    summary_data.gpu_df.to_excel(writer, sheet_name="Top5 GPU NS", index=False)
 
-#                     worksheet = writer.sheets["Summary"]
-#                     worksheet.set_column(0, 0, 20)
+                    worksheet = writer.sheets["Summary"]
+                    worksheet.set_column(0, 0, 20)
+                
+                print(f"  Saving summary file \"{summary_filepath}\"")
 
-#             except PermissionError:
-#                 print("ERROR: Recieved PermissionError when trying to save summary excel spreadsheet. This can happen if the sheet is open in another window (close excel).")
+            except PermissionError:
+                print("ERROR: Recieved PermissionError when trying to save summary excel spreadsheet. This can happen if the sheet is open in another window (close excel).")
 
                 

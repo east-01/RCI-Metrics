@@ -51,7 +51,18 @@ class AvailableHoursIdentifier(AnalysisIdentifier):
     
 @dataclass(frozen=True)
 class SummaryIdentifier(TimeStampIdentifier):
+    """
+    An identifier for a summary of a period, the start_ts and end_ts will match the corresponding
+      SourceIdentifiers' start_ts and end_ts.
+    """
+    def __hash__(self) -> int:
+        return hash((self.start_ts, self.end_ts))
+    
     def __eq__(self, other) -> bool:
         return isinstance(other, SummaryIdentifier) and super().__eq__(other) and self.start_ts == other.start_ts and self.start_ts == other.start_ts
+
     def __str__(self) -> str:
-        return f"summary {self.start_ts}-{self.end_ts}"
+        return f"summary of {self.start_ts}-{self.end_ts}"
+
+    def fs_str(self) -> str:
+        return f"{get_range_printable(self.start_ts, self.end_ts, 3600)} summary"
