@@ -19,7 +19,7 @@ saving:
 
 # Plugin-specific config sections
 PromQLIngestController:
-  main-periods: true
+  main-periods: false
   query-cfgs:
     - monthly
 AvailableHoursDriver:

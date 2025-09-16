@@ -1,18 +1,18 @@
 from dataclasses import dataclass
 
-from src.plugin_mgmt.plugins import AnalysisDriverPlugin
-from src.data.data_repository import DataRepository
-from src.program_data.parameter_utils import ConfigurationException
-from src.program_data.program_data import ProgramData
-from src.data.identifier import TimeStampIdentifier
-from src.data.filters import filter_type
 from plugins.rci.rci_identifiers import AvailableHoursIdentifier
-from src.plugin_mgmt.plugins import Analysis
+from src.data.data_repository import DataRepository
+from src.data.filters import filter_type
+from src.data.identifier import TimeStampIdentifier
+from src.parameter_utils import ConfigurationException
+from src.plugin_mgmt.plugins import Analysis, AnalysisDriverPlugin
+from src.program_data import ProgramData
 
-import plugins.rci.analyses.available_hours_driver as pkg_driver
+import plugins.rci.analyses.available_hours_driver as pkg
 
 @dataclass(frozen=True)
 class AvailHoursAnalysis(Analysis):
+    """ A wrapper for the standard analysis so we can capture it with the AvailableHoursDriver. """
     pass
 
 class AvailableHoursDriver(AnalysisDriverPlugin):
@@ -21,7 +21,7 @@ class AvailableHoursDriver(AnalysisDriverPlugin):
         in this plugin's config section. See verify_config_section for config info.
     """
     # Workaround to point to the global definition of AvailHoursAnalysis instead of the file definition
-    SERVED_TYPE=pkg_driver.AvailHoursAnalysis
+    SERVED_TYPE=pkg.AvailHoursAnalysis
 
     def verify_config_section(self, config_section: dict):
         """

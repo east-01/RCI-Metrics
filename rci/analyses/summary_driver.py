@@ -1,24 +1,27 @@
 from dataclasses import dataclass
 import pandas as pd
 
-from src.plugin_mgmt.plugins import AnalysisDriverPlugin
-from src.program_data.parameter_utils import ConfigurationException
-from src.program_data.program_data import ProgramData
-from src.data.data_repository import DataRepository
-from src.data.identifier import AnalysisIdentifier
 from plugins.rci.rci_identifiers import GrafanaIdentifier, SummaryIdentifier
+from src.data.data_repository import DataRepository
 from src.data.filters import filter_type
+from src.data.identifier import AnalysisIdentifier
+from src.parameter_utils import ConfigurationException
+from src.plugin_mgmt.plugins import Analysis, AnalysisDriverPlugin
+from src.program_data import ProgramData
 from src.utils.timeutils import get_range_printable
-from src.plugin_mgmt.plugins import Analysis
 
 import plugins.rci.analyses.summary_driver as pkg_driver
 
 @dataclass(frozen=True)
 class SummaryAnalysis(Analysis):
+    """ A wrapper for the standard analysis so we can capture it with the SummaryDriver. """
     pass
 
 @dataclass(frozen=True)
 class SummaryData():
+    """ The SummaryData dataclass acts as a struct for the readable_period, summary_df, and the
+            cpu/gpu_dfs. The str() method also compiles the data into a readable printout.
+    """
     readable_period: str
     summary_df: pd.DataFrame
     cpu_df: pd.DataFrame

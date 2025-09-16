@@ -1,6 +1,6 @@
 import os
 
-from src.program_data.program_data import ProgramData
+from src.program_data import ProgramData
 from src.data.data_repository import DataRepository
 from src.data.filters import *
 from src.plugin_mgmt.plugins import Saver

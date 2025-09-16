@@ -10,7 +10,7 @@ from plugins.rci.promql.query_executor import *
 from plugins.rci.promql.grafana_df_analyzer import *
 from plugins.rci.promql.query_preprocess import _preprocess_df
 from plugins.rci.rci_identifiers import GrafanaIdentifier
-from plugins.rci.analyses.rci_analyses import filter_source_type
+from plugins.rci.analyses.jobs_analyses import filter_source_type
 from src.data.data_repository import DataRepository
 from src.utils.timeutils import to_unix_ts, get_range_printable
 from src.data.filters import *

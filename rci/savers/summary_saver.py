@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from src.program_data.program_data import ProgramData
+from src.program_data import ProgramData
 from src.data.data_repository import DataRepository
 from src.data.filters import *
 from src.plugin_mgmt.plugins import Saver
@@ -12,6 +12,8 @@ class SummarySaver(Saver):
     def save(self, prog_data: ProgramData, config_section: dict, base_path: str):
         
         data_repo: DataRepository = prog_data.data_repo
+
+        all_saved_files = []
 
         identifiers = data_repo.filter_ids(filter_type(SummaryIdentifier))
         for identifier in identifiers:
@@ -27,10 +29,14 @@ class SummarySaver(Saver):
 
                     worksheet = writer.sheets["Summary"]
                     worksheet.set_column(0, 0, 20)
+
+                all_saved_files.append(summary_filepath)
                 
                 print(f"  Saving summary file \"{summary_filepath}\"")
 
             except PermissionError:
                 print("ERROR: Recieved PermissionError when trying to save summary excel spreadsheet. This can happen if the sheet is open in another window (close excel).")
+
+        return all_saved_files
 
                 
