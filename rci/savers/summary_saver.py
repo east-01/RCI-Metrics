@@ -1,12 +1,12 @@
 import os
 import pandas as pd
 
-from src.program_data import ProgramData
+from plugins.rci.analyses.summary_driver import SummaryData
+from plugins.rci.rci_identifiers import SummaryIdentifier
 from src.data.data_repository import DataRepository
 from src.data.filters import *
 from src.plugin_mgmt.plugins import Saver
-from plugins.rci.rci_identifiers import GrafanaIdentifier, SummaryIdentifier
-from plugins.rci.analyses.summary_driver import SummaryData
+from src.program_data import ProgramData
 
 class SummarySaver(Saver):
     def save(self, prog_data: ProgramData, config_section: dict, base_path: str):

@@ -16,6 +16,11 @@ from src.utils.timeutils import to_unix_ts, get_range_printable
 from src.data.filters import *
 
 def run(query_config, period_list):
+    """
+    Run this query config over the provided period list. Gets the status, cpu values, and gpu
+        values DataFrames and then applies processing steps on them.
+    """
+
     # The data repository that holds GrafanaIdentifiers, this is different from the
     #   standard DataRepository because there are multiple queries per period and type, to be
     #   used in the processing step where we only get pending/running pods.
@@ -148,8 +153,8 @@ def _apply_status_df(status_df, values_df):
 
 def _stitch(data_repo: DataRepository):
     """
-    Filter a DataRepository containing multiple GrafanaIdentifiers to SourceIdentifiers
-        based off of their running/pending status.
+    Stitch multiple periods of identifiers together. For example, if the data is broken down into
+        week-long periods, stitch will join together the weeks into months.
 
     Args:
         data_repo (DataRepository): The input repository, contains GrafanaIdentifiers to

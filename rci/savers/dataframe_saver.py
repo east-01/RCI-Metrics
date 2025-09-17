@@ -1,12 +1,14 @@
 import os
 
-from src.program_data import ProgramData
+from plugins.rci.rci_identifiers import GrafanaIdentifier
 from src.data.data_repository import DataRepository
 from src.data.filters import *
 from src.plugin_mgmt.plugins import Saver
-from plugins.rci.rci_identifiers import GrafanaIdentifier
+from src.program_data import ProgramData
 
 class DataFrameSaver(Saver):
+    """ Save DataFrames as .csv files in the file system. """
+
     def save(self, prog_data: ProgramData, config_section: dict, base_path: str):
 
         data_repo: DataRepository = prog_data.data_repo

@@ -8,7 +8,17 @@ from src.program_data import ProgramData
 from src.parameter_utils import ConfigurationException
 
 class PromQLIngestController(IngestPlugin):
+    """ The PromQLIngestController takes in a query configuration specifying: status query where we
+            have the status of the pod, and a values query specifying the compute hours. The status 
+            query is used as a filter for the values query, only taking values that show active in 
+            status.
+    """
+    
     def verify_config_section(self, config_section) -> bool:
+        """ The PromQLIngestController's config section expects a query-cfgs section with a list of 
+                query configs to pull. 
+        """
+
         def check_sec_exists(section):
             if(section not in config_section):
                 raise ConfigurationException(f"The section \"{section}\" is not in the config section.")
@@ -23,6 +33,8 @@ class PromQLIngestController(IngestPlugin):
             file_path = os.path.join(dir_path, "ingest_configs", f"{cfg_name}.yaml")
             if(not os.path.exists(file_path)):
                 raise ConfigurationException(f"Failed to find ingest config named \"{cfg_name}\" was expecting to find the file at: {file_path}")
+            
+        return True
 
     def ingest(self, prog_data: ProgramData, config_section: dict) -> DataRepository:
         

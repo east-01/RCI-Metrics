@@ -14,7 +14,9 @@ import plugins.rci.analyses.summary_driver as pkg_driver
 
 @dataclass(frozen=True)
 class SummaryAnalysis(Analysis):
-    """ A wrapper for the standard analysis so we can capture it with the SummaryDriver. """
+    """ A wrapper for the standard analysis so we can capture it with the SummaryDriver.
+        The SummaryAnalysis is the higest level analysis for the monthly configuration, collecting
+            cpu/gpu hours and jobs by namespace, total cpu/gpu hours and jobs. """
     pass
 
 @dataclass(frozen=True)
