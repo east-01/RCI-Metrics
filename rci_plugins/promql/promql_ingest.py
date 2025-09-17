@@ -1,7 +1,7 @@
 import os
 import yaml
 
-from plugins.rci.promql.query_ingest import run
+from plugins.rci_plugins.promql.query_ingest import run
 from src.data.data_repository import DataRepository
 from src.plugin_mgmt.plugins import IngestPlugin
 from src.program_data import ProgramData

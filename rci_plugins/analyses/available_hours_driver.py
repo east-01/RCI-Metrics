@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from plugins.rci.rci_identifiers import AvailableHoursIdentifier
+from plugins.rci_plugins.rci_identifiers import AvailableHoursIdentifier
 from src.data.data_repository import DataRepository
 from src.data.filters import filter_type
 from src.data.identifier import TimeStampIdentifier
@@ -8,7 +8,7 @@ from src.parameter_utils import ConfigurationException
 from src.plugin_mgmt.plugins import Analysis, AnalysisDriverPlugin
 from src.program_data import ProgramData
 
-import plugins.rci.analyses.available_hours_driver as pkg
+import plugins.rci_plugins.analyses.available_hours_driver as pkg
 
 @dataclass(frozen=True)
 class AvailHoursAnalysis(Analysis):

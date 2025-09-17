@@ -1,6 +1,6 @@
-from plugins.rci.analyses.available_hours_driver import AvailHoursAnalysis
-from plugins.rci.analyses.impls.hours import analyze_hours_byns, analyze_hours_total, verify_hours
-from plugins.rci.rci_filters import filter_source_type, grafana_analysis_key
+from plugins.rci_plugins.analyses.available_hours_driver import AvailHoursAnalysis
+from plugins.rci_plugins.analyses.impls.hours import analyze_hours_byns, analyze_hours_total, verify_hours
+from plugins.rci_plugins.rci_filters import filter_source_type, grafana_analysis_key
 from src.builtin_plugins.meta_analysis_driver import MetaAnalysis
 from src.builtin_plugins.simple_analysis_driver import SimpleAnalysis
 from src.builtin_plugins.verification_analysis_driver import VerificationAnalysis

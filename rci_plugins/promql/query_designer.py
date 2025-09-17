@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import math
 
 from src.utils.timeutils import get_range_printable, break_period_into_months
-from plugins.rci.promql.settings import settings
+from plugins.rci_plugins.promql.settings import settings
 from src.data.timeline import Timeline
 
 @dataclass(frozen=True)

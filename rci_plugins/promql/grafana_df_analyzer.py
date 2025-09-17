@@ -1,7 +1,7 @@
 import datetime
 import pandas as pd
 
-from plugins.rci.promql.settings import settings
+from plugins.rci_plugins.promql.settings import settings
 from src.utils.timeutils import to_unix_ts
 
 def convert_to_numeric(df: pd.DataFrame):

@@ -1,5 +1,5 @@
-from plugins.rci.analyses.impls.jobs import analyze_cpu_only_jobs_byns, analyze_jobs_byns, analyze_jobs_total, analyze_all_jobs_total
-from plugins.rci.rci_filters import filter_source_type, grafana_analysis_key
+from plugins.rci_plugins.analyses.impls.jobs import analyze_cpu_only_jobs_byns, analyze_jobs_byns, analyze_jobs_total, analyze_all_jobs_total
+from plugins.rci_plugins.rci_filters import filter_source_type, grafana_analysis_key
 from src.builtin_plugins.meta_analysis_driver import MetaAnalysis
 from src.builtin_plugins.simple_analysis_driver import SimpleAnalysis
 from src.builtin_plugins.vis_analysis_driver import VisualAnalysis, VisBarSettings

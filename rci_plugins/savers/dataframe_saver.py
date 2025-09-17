@@ -1,6 +1,6 @@
 import os
 
-from plugins.rci.rci_identifiers import GrafanaIdentifier
+from plugins.rci_plugins.rci_identifiers import GrafanaIdentifier
 from src.data.data_repository import DataRepository
 from src.data.filters import *
 from src.plugin_mgmt.plugins import Saver

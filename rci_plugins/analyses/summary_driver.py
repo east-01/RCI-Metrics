@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import pandas as pd
 
-from plugins.rci.rci_identifiers import GrafanaIdentifier, SummaryIdentifier
+from plugins.rci_plugins.rci_identifiers import GrafanaIdentifier, SummaryIdentifier
 from src.data.data_repository import DataRepository
 from src.data.filters import filter_type
 from src.data.identifier import AnalysisIdentifier
@@ -10,7 +10,7 @@ from src.plugin_mgmt.plugins import Analysis, AnalysisDriverPlugin
 from src.program_data import ProgramData
 from src.utils.timeutils import get_range_printable
 
-import plugins.rci.analyses.summary_driver as pkg_driver
+import plugins.rci_plugins.analyses.summary_driver as pkg_driver
 
 @dataclass(frozen=True)
 class SummaryAnalysis(Analysis):

@@ -1,4 +1,4 @@
-from plugins.rci.analyses.summary_driver import SummaryAnalysis
+from plugins.rci_plugins.analyses.summary_driver import SummaryAnalysis
 from src.builtin_plugins.meta_analysis_driver import MetaAnalysis
 from src.data.filters import *
 from src.plugin_mgmt.plugins import AnalysisPlugin

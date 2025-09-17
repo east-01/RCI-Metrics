@@ -1,8 +1,8 @@
 import os
 import pandas as pd
 
-from plugins.rci.analyses.summary_driver import SummaryData
-from plugins.rci.rci_identifiers import SummaryIdentifier
+from plugins.rci_plugins.analyses.summary_driver import SummaryData
+from plugins.rci_plugins.rci_identifiers import SummaryIdentifier
 from src.data.data_repository import DataRepository
 from src.data.filters import *
 from src.plugin_mgmt.plugins import Saver

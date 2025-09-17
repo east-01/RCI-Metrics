@@ -1,8 +1,8 @@
 # This code is repackaged from Tide2.ipynb in https://github.com/SDSU-Research-CI/rci-helpful-scripts
 import pandas as pd
 
-from plugins.rci.promql.grafana_df_cleaning import has_time_column, clear_time_column
-from plugins.rci.rci_identifiers import AvailableHoursIdentifier
+from plugins.rci_plugins.promql.grafana_df_cleaning import has_time_column, clear_time_column
+from plugins.rci_plugins.rci_identifiers import AvailableHoursIdentifier
 from src.data.data_repository import DataRepository
 from src.data.identifier import *
 

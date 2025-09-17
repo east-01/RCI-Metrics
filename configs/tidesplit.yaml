@@ -6,22 +6,22 @@ ingest:
     - IngestTimeline
 analysis:
   run:
-    - summary
     - verifycpuhours
     - verifygpuhours
-    - viscpuhours
-    - visgpuhours
+    - utilization
 saving:
-  base-path: "./io/monthly_latest"
+  base-path: "./io/tidesplit_latest"
   run:
     - VizualizationsSaver
-    - SummarySaver
 
 # Plugin-specific config sections
 PromQLIngestController:
   main-periods: false
   query-cfgs:
-    - monthly
+    - csu
+    - non-csu
+    - tainted
+    - untainted
 AvailableHoursDriver:
   # Information about hardware configurations for each node.
   default:
@@ -37,8 +37,29 @@ AvailableHoursDriver:
       cpu: 64
       gpu: 4
       node_cnt: 8
-SummaryDriver:
-  top5hours_blacklist:
-    - sdsu-rci-jh
-    - csu-tide-jupyterhub
-    - csusb-jupyterhub
+  tainted:
+    rci-tide-cpu:
+      cpu: 64
+      gpu: 4
+      node_cnt: 1
+    rci-tide-gpu:
+      cpu: 24
+      gpu: 4
+      node_cnt: 11
+    rci-nrp-gpu:
+      cpu: 64
+      gpu: 4
+      node_cnt: 8
+  untainted:
+    rci-tide-cpu:
+      cpu: 64
+      gpu: 4
+      node_cnt: 5
+    rci-tide-gpu:
+      cpu: 24
+      gpu: 4
+      node_cnt: 6
+    rci-nrp-gpu:
+      cpu: 64
+      gpu: 4
+      node_cnt: 8

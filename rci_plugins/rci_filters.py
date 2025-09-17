@@ -1,4 +1,4 @@
-from plugins.rci.rci_identifiers import GrafanaIdentifier
+from plugins.rci_plugins.rci_identifiers import GrafanaIdentifier
 from src.data.filters import *
 
 def filter_source_type(resource_type: str):
