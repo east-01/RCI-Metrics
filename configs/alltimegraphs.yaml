@@ -1,19 +1,18 @@
 # Runtime config
-period: January24
+period: January24-May25
 ingest:
   run:
     - PromQLIngestController
     - IngestTimeline
 analysis:
   run:
-    - summary
     - verifycpuhours
     - verifygpuhours
-    - viscpuhours
-    - visgpuhours
-    - alluniquens
+    - viscpuhoursmeta
+    - visgpuhoursmeta
+    - viscvgpuhours
 saving:
-  base-path: "./io/monthly_latest"
+  base-path: "./io/alltimegraphs_latest"
   exit-action: opendir
   run:
     - AnalysisSaver
@@ -40,11 +39,3 @@ AvailableHoursDriver:
       cpu: 64
       gpu: 4
       node_cnt: 8
-SummaryDriver:
-  top5hours_blacklist:
-    - sdsu-rci-jh
-    - csu-tide-jupyterhub
-    - csusb-jupyterhub
-AnalysisSaver:
-  whitelist:
-    - alluniquens

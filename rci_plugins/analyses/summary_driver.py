@@ -10,7 +10,7 @@ from src.plugin_mgmt.plugins import Analysis, AnalysisDriverPlugin
 from src.program_data import ProgramData
 from src.utils.timeutils import get_range_printable
 
-import plugins.rci_plugins.analyses.summary_driver as pkg_driver
+import plugins.rci_plugins.analyses.summary_driver as pkg
 
 @dataclass(frozen=True)
 class SummaryAnalysis(Analysis):
@@ -48,7 +48,7 @@ class SummaryData():
 
 class SummaryDriver(AnalysisDriverPlugin):
     # Workaround to point to the global definition of SummaryAnalysis instead of the file definition
-    SERVED_TYPE=pkg_driver.SummaryAnalysis
+    SERVED_TYPE=pkg.SummaryAnalysis
 
     def verify_config_section(self, config_section):
         # Optional config section, if its None that's fine
@@ -71,7 +71,7 @@ class SummaryDriver(AnalysisDriverPlugin):
             start_ts = identifier.start_ts
             end_ts = identifier.end_ts
 
-            summary_id = pkg_driver.SummaryIdentifier(start_ts, end_ts)
+            summary_id = SummaryIdentifier(start_ts, end_ts)
 
             if(data_repo.contains(summary_id)):
                 continue

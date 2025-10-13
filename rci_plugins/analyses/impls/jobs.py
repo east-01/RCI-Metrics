@@ -36,16 +36,18 @@ def analyze_cpu_only_jobs_byns(identifier: GrafanaIdentifier, data_repo: DataRep
     # We have to locate the corresponding GPU data block
     # The UIDs in the GPU will be used to clear blacklisted IDs
     gpu_identifier = GrafanaIdentifier(identifier.start_ts, identifier.end_ts, "gpu", identifier.query_cfg)
-    if(not data_repo.contains(gpu_identifier)):
-        raise Exception("Failed to analyze cpu only jobs, the corresponding gpu data_block could not be found.")
-    
-    gpu_df = data_repo.get_data(gpu_identifier)
-    if(has_time_column(gpu_df)):
-        gpu_df = clear_time_column(gpu_df)
+    gpu_uuid = None
 
-    gpu_greater_than_zero_cols = [col for col in gpu_df.columns if gpu_df[col].sum() > 0]
-    gpu_df = gpu_df[gpu_greater_than_zero_cols].fillna(0)
-    gpu_uuid = set(gpu_df.columns.str.extract(r'uid="([^"]+)"')[0].dropna())
+    if(data_repo.contains(gpu_identifier)):    
+        gpu_df = data_repo.get_data(gpu_identifier)
+        if(has_time_column(gpu_df)):
+            gpu_df = clear_time_column(gpu_df)
+
+        gpu_greater_than_zero_cols = [col for col in gpu_df.columns if gpu_df[col].sum() > 0]
+        gpu_df = gpu_df[gpu_greater_than_zero_cols].fillna(0)
+        gpu_uuid = set(gpu_df.columns.str.extract(r'uid="([^"]+)"')[0].dropna())
+    else:
+        print(f"WARNING: Analyzing cpu only jobs, the corresponding gpu data frame under identifier \"{gpu_identifier}\" could not be found.")
 
     # Unpack cpu dataframe
     df = data_repo.get_data(identifier)

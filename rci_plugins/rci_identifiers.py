@@ -21,19 +21,6 @@ class GrafanaIdentifier(TimeStampIdentifier):
         readable_period = get_range_printable(self.start_ts, self.end_ts, 3600)
         readable_period_cleaned = readable_period.replace("/", "_").replace(" ", "T").replace(":", "")
         return f"{self.type}-{readable_period_cleaned}"
-
-@dataclass(frozen=True)
-class GrafanaIntermediateIdentifier(GrafanaIdentifier):
-    query_type: str # Talks abt the type of configuration, like status or values
-
-    def __hash__(self) -> int:
-        return hash((super().__hash__(), self.query_type))
-
-    def __eq__(self, other) -> bool:
-        return isinstance(other, GrafanaIntermediateIdentifier) and super().__eq__(other) and self.query_type == other.query_type
-
-    def __str__(self) -> str:
-        return f"intermediate grafana {self.query_cfg}, {self.query_type}, {self.type}, {get_range_printable(self.start_ts, self.end_ts, 3600)}"
     
 @dataclass(frozen=True)
 class AvailableHoursIdentifier(AnalysisIdentifier):
@@ -66,3 +53,22 @@ class SummaryIdentifier(TimeStampIdentifier):
 
     def fs_str(self) -> str:
         return f"{get_range_printable(self.start_ts, self.end_ts, 3600)} summary"
+    
+@dataclass(frozen=True)
+class TideSplitIdentifier(AnalysisIdentifier):
+    """
+    An identifier for the tide split information for a period.
+    """
+    type: str
+
+    def __hash__(self) -> int:
+        return hash((super().__hash__(), self.type))
+    
+    def __eq__(self, other) -> bool:
+        return isinstance(other, TideSplitIdentifier) and super().__eq__(other) and self.type == other.type
+
+    def __str__(self) -> str:
+        return f"tidesplit named {self.analysis} for type {self.type} on {self.on}"
+
+    def fs_str(self) -> str:
+        return f"{get_range_printable(self.find_base().start_ts, self.find_base().end_ts, 3600)} tidesplit"

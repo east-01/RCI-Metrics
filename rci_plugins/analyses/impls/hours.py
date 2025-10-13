@@ -96,3 +96,14 @@ def verify_hours(identifier: AnalysisIdentifier, data_repo: DataRepository):
 		print(f"The total hours scheduled {total_hours} exceeds the maximum amount of resource hours available {avail_hrs}.")
 	
 	return total_hours <= avail_hrs
+
+def extract_rci_jh_hours(identifier: AnalysisIdentifier, data_repo: DataRepository):
+	data = data_repo.get_data(identifier)
+	data: pd.DataFrame = data[data["Namespace"] == "sdsu-rci-jh"]
+
+	if(data is None or data.empty):
+		print(f"WARNING: Extracting hours from sdsu-rci-jh: the DataFrame didn't have a row with that namespace, skipping.")
+		return 0
+
+	row = data.iloc[0].to_dict()
+	return row["Hours"]

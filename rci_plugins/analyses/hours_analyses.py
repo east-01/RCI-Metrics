@@ -1,5 +1,5 @@
 from plugins.rci_plugins.analyses.available_hours_driver import AvailHoursAnalysis
-from plugins.rci_plugins.analyses.impls.hours import analyze_hours_byns, analyze_hours_total, verify_hours
+from plugins.rci_plugins.analyses.impls.hours import analyze_hours_byns, analyze_hours_total, verify_hours, extract_rci_jh_hours
 from plugins.rci_plugins.rci_filters import filter_source_type, grafana_analysis_key
 from src.builtin_plugins.meta_analysis_driver import MetaAnalysis
 from src.builtin_plugins.simple_analysis_driver import SimpleAnalysis
@@ -11,6 +11,7 @@ from src.plugin_mgmt.plugins import AnalysisPlugin
 class HoursAnalyses(AnalysisPlugin):
     def get_analyses(self):
         return [
+#region CPU
             SimpleAnalysis(
                 name="cpuhours", 
                 prereq_analyses=None,
@@ -63,6 +64,8 @@ class HoursAnalyses(AnalysisPlugin):
                     }
                 )
             ),
+#endregion
+#region GPU
             SimpleAnalysis(
                 name="gpuhours", 
                 prereq_analyses=None,
@@ -115,6 +118,8 @@ class HoursAnalyses(AnalysisPlugin):
                     }
                 )
             ),
+#endregion
+#region Comparisons
             MetaAnalysis(
 				name="cvgpuhours",
                 prereq_analyses=["cpuhourstotal", "gpuhourstotal"],
@@ -132,5 +137,38 @@ class HoursAnalyses(AnalysisPlugin):
                         "gpuhourstotal": "blue"
                     }
                 )
+            ),
+#endregion
+#region JupyterHub hours
+            SimpleAnalysis(
+                name="cpurcijhhours",
+                prereq_analyses=["cpuhours"],
+                filter=filter_analyis_type("cpuhours"),
+                method=extract_rci_jh_hours
+            ),
+            SimpleAnalysis(
+                name="gpurcijhhours",
+                prereq_analyses=["gpuhours"],
+                filter=filter_analyis_type("gpuhours"),
+                method=extract_rci_jh_hours
+            ),
+            MetaAnalysis(
+                name="rcijhhoursmeta",
+                prereq_analyses=["cpurcijhhours", "gpurcijhhours"],
+                key_method=None
+            ),
+            VisualAnalysis(
+                name="visrcijhhours",
+                prereq_analyses=["rcijhhoursmeta"],
+                filter=filter_analyis_type("rcijhhoursmeta"),
+                vis_settings=VisTimeSettings(
+                    title="Compute hours for namespace sdsu-rci-jh",
+                    variables=None,
+                    color={
+                        "cpurcijhhours": "red",
+                        "gpurcijhhours": "blue"
+                    }
+                )
             )
+#endregion
         ]

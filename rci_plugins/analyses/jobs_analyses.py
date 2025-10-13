@@ -2,7 +2,7 @@ from plugins.rci_plugins.analyses.impls.jobs import analyze_cpu_only_jobs_byns, 
 from plugins.rci_plugins.rci_filters import filter_source_type, grafana_analysis_key
 from src.builtin_plugins.meta_analysis_driver import MetaAnalysis
 from src.builtin_plugins.simple_analysis_driver import SimpleAnalysis
-from src.builtin_plugins.vis_analysis_driver import VisualAnalysis, VisBarSettings
+from src.builtin_plugins.vis_analysis_driver import VisualAnalysis, VisBarSettings, VisTimeSettings
 from src.data.filters import *
 from src.plugin_mgmt.plugins import AnalysisPlugin
 
@@ -69,5 +69,18 @@ class JobsAnalyses(AnalysisPlugin):
 				name="cvgpujobs",
                 prereq_analyses=["cpujobstotal", "gpujobstotal"],
                 key_method=grafana_analysis_key
-			)
+			),
+            VisualAnalysis(
+                name="viscvgpujobs",
+                prereq_analyses=["cvgpujobs"],
+                filter=filter_analyis_type("cvgpujobs"),
+                vis_settings=VisTimeSettings(
+                    title="CPU and GPU jobs by month",
+                    variables=None,
+                    color={
+                        "cpujobstotal": "red",
+                        "gpujobstotal": "blue"
+                    }
+                )
+            )
         ]

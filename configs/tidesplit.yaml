@@ -1,5 +1,5 @@
 # Runtime config
-period: January24
+period: 1735718400-1735804799
 ingest:
   run:
     - PromQLIngestController
@@ -8,10 +8,11 @@ analysis:
   run:
     - verifycpuhours
     - verifygpuhours
-    - utilization
+    - tidesplitmeta
 saving:
   base-path: "./io/tidesplit_latest"
   run:
+    - AnalysisSaver
     - VizualizationsSaver
 
 # Plugin-specific config sections
@@ -63,3 +64,6 @@ AvailableHoursDriver:
       cpu: 64
       gpu: 4
       node_cnt: 8
+AnalysisSaver:
+  whitelist:
+    - tidesplitmeta
