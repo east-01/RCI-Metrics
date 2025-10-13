@@ -78,6 +78,8 @@ Option | Analysis type | Description type |
 uniquens | SimpleAnalysis | Get all of the unique namespaces in the loaded Grafana DataFrames.
 utilization | MetaAnalysis | A comparison of resource hours used vs available across all periods.
 summary | SummaryAnalysis | The highest level analysis for monthly config, returns summary of data.
+tidesplit | TideSplitAnalysis | The highest level analysis for tidesplit config, returns tidesplit metrics summary _per period_.
+tidesplitmeta | AggregateAnalysis | Meta analyze tidesplit analyses over all periods, returns a single DataFrame with all periods' tide split data.
 
 ## Configuration
 
