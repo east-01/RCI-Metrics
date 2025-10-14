@@ -8,9 +8,13 @@ The installation instructions assume that you have:
 - [AutoMetrics](https://github.com/east-01/AutoMetrics) installed and running.
 - Python 3.12.6 or later
 
+At the end of these instructions, your project structure should look like:
+
+![RCI-Metrics project structure](./project_layout.png)
+
 ### For use only (not development)
 
-If you don't want to develop the RCI metrics, all you have to do is:
+If you don't want to write code for RCI metrics, only running it, all you have to do is:
 
 1. Download a copy of this repositories' .zip
 1. Place rci_plugins into AutoMetric's plugins folder

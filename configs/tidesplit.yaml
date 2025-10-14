@@ -1,5 +1,7 @@
 # Runtime config
-period: 1735718400-1735804799
+period: January25-September25
+timeline:
+  sub_period_max_len: 302400 # Half a week
 ingest:
   run:
     - PromQLIngestController
@@ -17,7 +19,7 @@ saving:
 
 # Plugin-specific config sections
 PromQLIngestController:
-  main-periods: false
+  main-periossds: false
   query-cfgs:
     - csu
     - non-csu

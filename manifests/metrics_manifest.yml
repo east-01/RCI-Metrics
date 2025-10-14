@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics
+  labels:
+    app: metrics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metrics
+  template:
+    metadata:
+      labels:
+        app: metrics
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nautilus.io/csu-tide
+                operator: Exists
+      containers:
+      - name: metrics
+        image: east01/rcimetrics:0.1a
+        resources:
+          limits:
+            cpu: 6
+            memory: 16Gi
+          requests:
+            cpu: 4
+            memory: 12Gi
+        env:
+        - name: CONFIG_FILE
+          value: ./configs/tidesplit.yaml        
+        volumeMounts:
+        - name: metrics-pvc
+          mountPath: /app/io/
+      volumes:
+      - name: metrics-pvc
+        persistentVolumeClaim:
+         claimName: metricspvc
+
