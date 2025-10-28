@@ -15,6 +15,9 @@ class SummarySaver(Saver):
 
         all_saved_files = []
 
+        if(not os.path.exists(base_path)):
+            os.makedirs(base_path, exist_ok=True)
+
         identifiers = data_repo.filter_ids(filter_type(SummaryIdentifier))
         for identifier in identifiers:
             summary_data: SummaryData = data_repo.get_data(identifier)

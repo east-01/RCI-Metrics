@@ -1,0 +1,24 @@
+# Runtime config
+period: January24-lastmonth
+ingest:
+  run:
+    - PromQLIngestController
+analysis:
+  run:
+    - cpuhours
+    - gpuhours
+    - alluniquens
+saving:
+  base-path: "./io/alltimenamespaces_latest"
+  exit-action: openeach
+  run:
+    - AnalysisSaver
+
+# Plugin-specific config sections
+PromQLIngestController:
+  main-periods: true
+  query-cfgs:
+    - monthly
+AnalysisSaver:
+  whitelist:
+    - alluniquens

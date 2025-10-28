@@ -1,5 +1,5 @@
 # Runtime config
-period: January25-September25
+period: ytd
 timeline:
   sub_period_max_len: 302400 # Half a week
 ingest:

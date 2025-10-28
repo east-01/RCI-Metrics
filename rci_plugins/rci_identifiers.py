@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from src.data.identifier import TimeStampIdentifier, AnalysisIdentifier
 from src.utils.timeutils import get_range_printable
+from src.utils.fileutils import convert_readable_period_fs
 
 @dataclass(frozen=True)
 class GrafanaIdentifier(TimeStampIdentifier):
@@ -19,7 +20,7 @@ class GrafanaIdentifier(TimeStampIdentifier):
     
     def fs_str(self):
         readable_period = get_range_printable(self.start_ts, self.end_ts, 3600)
-        readable_period_cleaned = readable_period.replace("/", "_").replace(" ", "T").replace(":", "")
+        readable_period_cleaned = convert_readable_period_fs(readable_period)
         return f"{self.type}-{readable_period_cleaned}"
     
 @dataclass(frozen=True)
@@ -52,7 +53,9 @@ class SummaryIdentifier(TimeStampIdentifier):
         return f"summary of {self.start_ts}-{self.end_ts}"
 
     def fs_str(self) -> str:
-        return f"{get_range_printable(self.start_ts, self.end_ts, 3600)} summary"
+        readable_period = get_range_printable(self.start_ts, self.end_ts, 3600)
+        readable_period_cleaned = convert_readable_period_fs(readable_period)
+        return f"{readable_period_cleaned} summary"
     
 @dataclass(frozen=True)
 class TideSplitIdentifier(AnalysisIdentifier):
@@ -71,4 +74,6 @@ class TideSplitIdentifier(AnalysisIdentifier):
         return f"tidesplit named {self.analysis} for type {self.type} on {self.on}"
 
     def fs_str(self) -> str:
-        return f"{get_range_printable(self.find_base().start_ts, self.find_base().end_ts, 3600)} tidesplit"
+        readable_period = get_range_printable(self.find_base().start_ts, self.find_base().end_ts, 3600)
+        readable_period_cleaned = convert_readable_period_fs(readable_period)
+        return f"{readable_period_cleaned} tidesplit"

@@ -1,5 +1,5 @@
 # Runtime config
-period: January24
+period: lastmonth
 ingest:
   run:
     - PromQLIngestController
