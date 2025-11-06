@@ -1,5 +1,7 @@
+from functools import partial
+
 from plugins.rci_plugins.analyses.available_hours_driver import AvailHoursAnalysis
-from plugins.rci_plugins.analyses.impls.hours import analyze_hours_byns, analyze_hours_total, verify_hours, extract_rci_jh_hours
+from plugins.rci_plugins.analyses.impls.hours import namespace_key_function, jupyterhub_pod_key_function, analyze_hours_byns, analyze_hours_total, verify_hours, extract_rci_jh_hours
 from plugins.rci_plugins.rci_filters import filter_source_type, grafana_analysis_key
 from src.builtin_plugins.meta_analysis_driver import MetaAnalysis
 from src.builtin_plugins.simple_analysis_driver import SimpleAnalysis
@@ -16,7 +18,7 @@ class HoursAnalyses(AnalysisPlugin):
                 name="cpuhours", 
                 prereq_analyses=None,
                 filter=filter_source_type("cpu"),
-                method=analyze_hours_byns
+                method=partial(analyze_hours_byns, key_function=namespace_key_function)
             ),
             SimpleAnalysis(
                 name="cpuhourstotal", 
@@ -70,7 +72,7 @@ class HoursAnalyses(AnalysisPlugin):
                 name="gpuhours", 
                 prereq_analyses=None,
                 filter=filter_source_type("gpu"),
-                method=analyze_hours_byns
+                method=partial(analyze_hours_byns, key_function=namespace_key_function)
             ),
             SimpleAnalysis(
                 name="gpuhourstotal", 
@@ -169,6 +171,20 @@ class HoursAnalyses(AnalysisPlugin):
                         "gpurcijhhours": "blue"
                     }
                 )
+            ),
+#endregion
+#region JupyterHub pod hours
+            SimpleAnalysis(
+                name="cpujhpodhours",
+                prereq_analyses=["cpuhours"],
+                filter=filter_source_type("cpu"),
+                method=partial(analyze_hours_byns, key_function=jupyterhub_pod_key_function)
+            ),
+            SimpleAnalysis(
+                name="gpujhpodhours",
+                prereq_analyses=["gpuhours"],
+                filter=filter_source_type("gpu"),
+                method=partial(analyze_hours_byns, key_function=jupyterhub_pod_key_function)
             )
 #endregion
         ]

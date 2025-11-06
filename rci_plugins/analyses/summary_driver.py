@@ -28,6 +28,8 @@ class SummaryData():
     summary_df: pd.DataFrame
     cpu_df: pd.DataFrame
     gpu_df: pd.DataFrame
+    cpu_jh_users_df: pd.DataFrame
+    gpu_jh_users_df: pd.DataFrame
 
     def __str__(self):
         return f"""Summary for {self.readable_period}
@@ -43,6 +45,18 @@ class SummaryData():
                     'Top 5 GPU namespaces:\n    ' + '\n    '.join(self.gpu_df.to_string().split('\n'))
                     if len(self.gpu_df) > 0 else
                     'Top 5 GPU namespaces empty.'
+                )}
+
+                {(
+                    'Top 5 CPU users:\n    ' + '\n    '.join(self.cpu_jh_users_df.to_string().split('\n'))
+                    if len(self.cpu_jh_users_df) > 0 else
+                    'Top 5 CPU users empty.'
+                )}
+
+                {(
+                    'Top 5 GPU users:\n    ' + '\n    '.join(self.gpu_jh_users_df.to_string().split('\n'))
+                    if len(self.gpu_jh_users_df) > 0 else
+                    'Top 5 GPU users empty.'
                 )}
                 """
 
@@ -76,18 +90,27 @@ class SummaryDriver(AnalysisDriverPlugin):
             if(data_repo.contains(summary_id)):
                 continue
 
-            # NOTE: For future reference this can be keyed, so instead of only picking monthly 
-            #   identifiers we can add a key implementation and pick multiple
-            cpu_src_id = GrafanaIdentifier(start_ts, end_ts, "cpu", "monthly")
-            gpu_src_id = GrafanaIdentifier(start_ts, end_ts, "gpu", "monthly")
-
-            if(not data_repo.contains(cpu_src_id) or not data_repo.contains(gpu_src_id)):
-                raise ValueError(f"Can't summarize {start_ts}-{end_ts} the data_repo is missing either the cpu or gpu SourceIdentifier.")
+            src_ids = get_src_ids(start_ts, end_ts)
+            for src_id in src_ids:
+                if(not data_repo.contains(src_id)):
+                    raise ValueError(f"Can't summarize {start_ts}-{end_ts} the data_repo is missing expected identifier: {src_id}.")                
             
-            summary_data = generate_analysis(data_repo, config_section, cpu_src_id, gpu_src_id)
+            summary_data = generate_analysis(data_repo, config_section, src_ids)
             data_repo.add(summary_id, summary_data)
 
-def generate_analysis(data_repo: DataRepository, config_section: dict, cpu_src_id: GrafanaIdentifier, gpu_src_id: GrafanaIdentifier) -> SummaryData:
+def get_src_ids(start_ts: int, end_ts: int):
+    # NOTE: For future reference this can be keyed, so instead of only picking monthly 
+    #   identifiers we can add a key implementation and pick multiple
+    cpu_src_id = GrafanaIdentifier(start_ts, end_ts, "cpu", "monthly")
+    gpu_src_id = GrafanaIdentifier(start_ts, end_ts, "gpu", "monthly")
+    cpu_jh_users_src_id = GrafanaIdentifier(start_ts, end_ts, "cpu", "jupyterhub")
+    gpu_jh_users_src_id = GrafanaIdentifier(start_ts, end_ts, "gpu", "jupyterhub")
+
+    return cpu_src_id, gpu_src_id, cpu_jh_users_src_id, gpu_jh_users_src_id
+
+def generate_analysis(data_repo: DataRepository, config_section: dict, src_ids: tuple) -> SummaryData:
+
+    cpu_src_id, gpu_src_id, cpu_jh_users_src_id, gpu_jh_users_src_id = src_ids
 
     # Collect analysis identifiers
     cpuhours = AnalysisIdentifier(cpu_src_id, "cpuhours")
@@ -95,11 +118,13 @@ def generate_analysis(data_repo: DataRepository, config_section: dict, cpu_src_i
     cpujobs = AnalysisIdentifier(cpu_src_id, "cpujobs")
     cpujobstotal = AnalysisIdentifier(cpujobs, "cpujobstotal")
     jobstotal = AnalysisIdentifier(cpujobstotal, "jobstotal")
+    cpujhhours = AnalysisIdentifier(cpu_jh_users_src_id, "cpujhpodhours")
 
     gpuhours = AnalysisIdentifier(gpu_src_id, "gpuhours")
     gpuhourstotal = AnalysisIdentifier(gpuhours, "gpuhourstotal")
     gpujobs = AnalysisIdentifier(gpu_src_id, "gpujobs")
     gpujobstotal = AnalysisIdentifier(gpujobs, "gpujobstotal")
+    gpujhhours = AnalysisIdentifier(gpu_jh_users_src_id, "gpujhpodhours")
 
     # Shorthand for the get_data method call for readability
     gd = data_repo.get_data
@@ -112,20 +137,29 @@ def generate_analysis(data_repo: DataRepository, config_section: dict, cpu_src_i
 
     # Generate top 5 hours dataframes
     if("top5hours_blacklist" in config_section.keys()):
-        top5_blacklist = config_section['top5hours_blacklist']
+        top5_blacklist_lambda = lambda row: row.iloc[0] not in config_section['top5hours_blacklist']
     else:
-        top5_blacklist = []
+        top5_blacklist_lambda = True    
 
     cpu_df = gd(cpuhours)
-    cpu_df = cpu_df[cpu_df.apply(lambda row: row.iloc[0] not in top5_blacklist, axis=1)].iloc[0:5].reset_index(drop=True)
+    cpu_df = cpu_df[cpu_df.apply(top5_blacklist_lambda, axis=1)].iloc[0:5].reset_index(drop=True)
 
     gpu_df = gd(gpuhours)
-    gpu_df = gpu_df[gpu_df.apply(lambda row: row.iloc[0] not in top5_blacklist, axis=1)].iloc[0:5].reset_index(drop=True)
+    gpu_df = gpu_df[gpu_df.apply(top5_blacklist_lambda, axis=1)].iloc[0:5].reset_index(drop=True)
+
+    # Generate top 5 users dataframes
+    cpu_jh_df = gd(cpujhhours)
+    cpu_jh_df = cpu_jh_df.iloc[0:5].reset_index(drop=True)
+
+    gpu_jh_df = gd(gpujhhours)
+    gpu_jh_df = gpu_jh_df.iloc[0:5].reset_index(drop=True)
 
     readable_period = get_range_printable(cpu_src_id.start_ts, cpu_src_id.end_ts, 3600)
     return SummaryData(
         readable_period=readable_period,
         summary_df=summary_df,
         cpu_df=cpu_df,
-        gpu_df=gpu_df
+        gpu_df=gpu_df,
+        cpu_jh_users_df=cpu_jh_df,
+        gpu_jh_users_df=gpu_jh_df
     )

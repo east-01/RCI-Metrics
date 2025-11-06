@@ -27,8 +27,10 @@ class SummarySaver(Saver):
                 summary_filepath = os.path.join(base_path, f"{identifier.fs_str()}.xlsx")
                 with pd.ExcelWriter(summary_filepath, engine="xlsxwriter") as writer:
                     summary_data.summary_df.to_excel(writer, sheet_name="Summary", index=False)
-                    summary_data.cpu_df.to_excel(writer, sheet_name="Top5 CPU NS", index=False)
+                    summary_data.gpu_jh_users_df.to_excel(writer, sheet_name="Top5 GPU Users", index=False)
+                    summary_data.cpu_jh_users_df.to_excel(writer, sheet_name="Top5 CPU Users", index=False)
                     summary_data.gpu_df.to_excel(writer, sheet_name="Top5 GPU NS", index=False)
+                    summary_data.cpu_df.to_excel(writer, sheet_name="Top5 CPU NS", index=False)
 
                     worksheet = writer.sheets["Summary"]
                     worksheet.set_column(0, 0, 20)

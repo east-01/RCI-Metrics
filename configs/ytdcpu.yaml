@@ -1,31 +1,25 @@
 # Runtime config
-period: lastmonth
+period: ytd-lastmonth
 ingest:
   run:
     - PromQLIngestController
     - IngestTimeline
 analysis:
   run:
-    - summary
-    - verifycpuhours
-    - verifygpuhours
-    - viscpuhours
-    - visgpuhours
-    - alluniquens
+    - viscvgpuhours
+    - viscpuhoursmeta
+    - visgpuhoursmeta
 saving:
-  base-path: "./io/monthly_latest"
+  base-path: "./io/ytdcpu_latest"
   exit-action: opendir
   run:
-    - AnalysisSaver
     - VizualizationsSaver
-    - SummarySaver
 
 # Plugin-specific config sections
 PromQLIngestController:
   main-periods: true
   query-cfgs:
-    - monthly
-    - jupyterhub
+    - tainted
 AvailableHoursDriver:
   # Information about hardware configurations for each node.
   default:
@@ -41,11 +35,3 @@ AvailableHoursDriver:
       cpu: 64
       gpu: 4
       node_cnt: 8
-SummaryDriver:
-  top5hours_blacklist:
-    - sdsu-rci-jh
-    - csu-tide-jupyterhub
-    - csusb-jupyterhub
-AnalysisSaver:
-  whitelist:
-    - alluniquens

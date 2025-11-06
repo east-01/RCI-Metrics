@@ -21,7 +21,7 @@ class GrafanaIdentifier(TimeStampIdentifier):
     def fs_str(self):
         readable_period = get_range_printable(self.start_ts, self.end_ts, 3600)
         readable_period_cleaned = convert_readable_period_fs(readable_period)
-        return f"{self.type}-{readable_period_cleaned}"
+        return f"{self.query_cfg}-{self.type}-{readable_period_cleaned}"
     
 @dataclass(frozen=True)
 class AvailableHoursIdentifier(AnalysisIdentifier):

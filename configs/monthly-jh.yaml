@@ -3,18 +3,13 @@ period: lastmonth
 ingest:
   run:
     - PromQLIngestController
-    - IngestTimeline
 analysis:
   run:
+    - cpujhpodhours
     - summary
-    - verifycpuhours
-    - verifygpuhours
-    - viscpuhours
-    - visgpuhours
-    - alluniquens
 saving:
-  base-path: "./io/monthly_latest"
-  exit-action: opendir
+  base-path: "./io/monthlyjh_latest"
+  exit-action: none
   run:
     - AnalysisSaver
     - VizualizationsSaver
@@ -48,4 +43,4 @@ SummaryDriver:
     - csusb-jupyterhub
 AnalysisSaver:
   whitelist:
-    - alluniquens
+    - cpujhpodhours

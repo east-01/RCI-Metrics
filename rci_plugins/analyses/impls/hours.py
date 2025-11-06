@@ -1,26 +1,42 @@
 # This code is repackaged from Tide2.ipynb in https://github.com/SDSU-Research-CI/rci-helpful-scripts
 import pandas as pd
+import re
+from typing import Callable
 
 from plugins.rci_plugins.promql.grafana_df_cleaning import has_time_column, clear_time_column
 from plugins.rci_plugins.rci_identifiers import AvailableHoursIdentifier
 from src.data.data_repository import DataRepository
 from src.data.identifier import *
 
-def analyze_hours_byns(identifier, data_repo: DataRepository):
+import plugins.rci_plugins.analyses.impls.hours as pkg
+
+def namespace_key_function(col):
+	match = re.search(r'namespace="([^"]+)"', col)
+	return match.group(1) if match else None
+
+def jupyterhub_pod_key_function(col):
+	match = re.search(r'pod="([^"]+)"', col)
+	result = match.group(1)
+	# Clean string
+	result = result.replace("jupyter-", "").replace("-40", "@").replace("-2e", ".")
+	return result
+
+def analyze_hours_byns(identifier, data_repo: DataRepository, key_function: Callable[[str], str] = namespace_key_function):
 	"""
 	Unpack the Grafana DataFrame from the DataRepository and perform _analyze_hours_byns_ondf on
 		it.
 
 	Args:
 		identifier (SourceIdentifier): The identifier for the Grafana DataFrame.
+		key_function:
 	Returns:
 		pd.DataFrame: Result from _analyze_hours_byns_ondf.
 	"""
 
 	df = data_repo.get_data(identifier)
-	return _analyze_hours_byns_ondf(df)
+	return _analyze_hours_byns_ondf(df, key_function)
 
-def _analyze_hours_byns_ondf(df):
+def _analyze_hours_byns_ondf(df, key_function: Callable[[str], str]):
 	"""
 	Analyze hours by namespace.
 
@@ -33,16 +49,15 @@ def _analyze_hours_byns_ondf(df):
 	if(has_time_column(df)):
 		df = clear_time_column(df)
 
-	# Extract namespaces from column names, excluding the first since that's the Time column
-	namespaces = df.columns.str.extract(r'namespace="([^"]+)"')[0]
-
 	# Calculate the sum for each namespace
 	namespace_totals = {}
-	for namespace in namespaces.unique():
-		namespace_df = df.filter(regex=f'namespace="{namespace}"', axis=1)
-
-		namespace_total = namespace_df.sum(axis=1).sum()
-		namespace_totals[namespace] = namespace_total
+	for column in df.columns:
+		key = key_function(column)
+		total = df[column].sum()
+		if(key in namespace_totals):
+			namespace_totals[key] += total
+		else:
+			namespace_totals[key] = float(total)
 
 	namespace_totals_df = pd.DataFrame(list(namespace_totals.items()), columns=["Namespace", "Hours"])
 
