@@ -36,7 +36,6 @@ class TideSplitDriver(AnalysisDriverPlugin):
                 identifier = TideSplitIdentifier(on=ts_identifier, analysis=analysis.name, type=type)
 
                 data_repo.add(identifier, data)
-                print(f"Added {identifier}")
 
 def _get_data(data_repo: DataRepository, ts_identifier, type):
     available_hours_type_key = lambda id: (id.type, id.config)
