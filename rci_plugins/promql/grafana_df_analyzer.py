@@ -57,22 +57,20 @@ def get_resource_type(df):
     # If the length of the set is more than one we have an invalid DF
     if(len(type_set) == 0):
         raise Exception(f"Type analysis error: yielded no types. It is expected that the DataFrame has consistent resource types between all columns.")
-    if(len(type_set) > 1):
-        raise Exception(f"Type analysis error: yielded more than one type: {list(type_set)}. It is expected that the DataFrame has consistent resource types between all columns.")
 
     # Reverse the type string (i.e. "nvidia_com_gpu") to it's associated program type (i.e. "gpu")
-    type_string = list(type_set)[0]
     type = None
     
     # Find the program type by finding the dictionary key from its value
     type_strings = settings['type_strings']
     for possible_type in type_strings.keys():
-        if(type_strings[possible_type] == type_string):
+        possible_set = set(type_strings[possible_type])
+        if(type_set.issubset(possible_set)):
             type = possible_type
             break
 
     if(type is None):
-        raise Exception(f"Type analysis error: couldn't reverse type string \"{type_string}\" into it's associated program type. [{type_strings.keys()}]")
+        raise Exception(f"Type analysis error: couldn't reverse type set \"{type_set}\" into it's associated program type. [{type_strings.keys()}]")
 
     return type
 

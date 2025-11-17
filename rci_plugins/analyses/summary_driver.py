@@ -25,7 +25,11 @@ class SummaryData():
             cpu/gpu_dfs. The str() method also compiles the data into a readable printout.
     """
     readable_period: str
-    summary_df: pd.DataFrame
+    cpujobstotal: int
+    gpujobstotal: int
+    jobstotal: int
+    cpuhourstotal: int
+    gpuhourstotal: int
     cpu_df: pd.DataFrame
     gpu_df: pd.DataFrame
     cpu_jh_users_df: pd.DataFrame
@@ -129,12 +133,6 @@ def generate_analysis(data_repo: DataRepository, config_section: dict, src_ids: 
     # Shorthand for the get_data method call for readability
     gd = data_repo.get_data
 
-    # Create the summary data frame
-    summary_df = pd.DataFrame({
-        "Analysis": ["CPU Only Jobs", "GPU Jobs", "Jobs Total", "CPU Hours", "GPU Hours"],
-        "Value": [gd(cpujobstotal), gd(gpujobstotal), gd(jobstotal), gd(cpuhourstotal), gd(gpuhourstotal)]
-    })
-
     # Generate top 5 hours dataframes
     if("top5hours_blacklist" in config_section.keys()):
         top5_blacklist_lambda = lambda row: row.iloc[0] not in config_section['top5hours_blacklist']
@@ -157,7 +155,11 @@ def generate_analysis(data_repo: DataRepository, config_section: dict, src_ids: 
     readable_period = get_range_printable(cpu_src_id.start_ts, cpu_src_id.end_ts, 3600)
     return SummaryData(
         readable_period=readable_period,
-        summary_df=summary_df,
+        cpujobstotal=gd(cpujobstotal),
+        gpujobstotal=gd(gpujobstotal),
+        jobstotal=gd(jobstotal),
+        cpuhourstotal=gd(cpuhourstotal),
+        gpuhourstotal=gd(gpuhourstotal),
         cpu_df=cpu_df,
         gpu_df=gpu_df,
         cpu_jh_users_df=cpu_jh_df,

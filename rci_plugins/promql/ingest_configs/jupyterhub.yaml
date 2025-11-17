@@ -9,7 +9,7 @@ queries:
         }
     values: |
         kube_pod_container_resource_requests{
-            resource="%TYPE_STRING%",
+            resource=~"%TYPE_STRING%",
             namespace=~"sdsu-rci-jh|csu-tide-jupyterhub|csusb-hpc",
             pod=~"jupyter-.*"
         }

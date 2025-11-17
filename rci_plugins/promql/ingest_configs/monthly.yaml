@@ -11,7 +11,7 @@ queries:
         kube_pod_container_resource_requests{
             namespace=~"csusb.*|csu.*|ccp-.*|cal-poly-.*|sdsu-.*|csun-.*|nsf-maica",
             namespace!~"sdsu-jupyterhub.*", 
-            resource = "%TYPE_STRING%", 
+            resource=~"%TYPE_STRING%", 
             node=~"rci-tide.*|rci-nrp-gpu-08.*|rci-nrp-gpu-07.*|rci-nrp-gpu-06.*|rci-nrp-gpu-05.*", 
             node!~"rci-tide-dtn.*"
         }

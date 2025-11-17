@@ -11,7 +11,7 @@ queries:
     kube_pod_container_resource_requests{
         namespace=~"sdsu-jupyterhub",
         namespace!~"sdsu-rci-jh", 
-        resource = "%TYPE_STRING%", 
+        resource=~"%TYPE_STRING%", 
         node=~"rci-tide.*|rci-nrp.*", 
         node!~"rci-tide-dtn.*"
     }

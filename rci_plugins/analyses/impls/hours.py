@@ -19,7 +19,21 @@ def jupyterhub_pod_key_function(col):
 	result = match.group(1)
 	# Clean string
 	result = result.replace("jupyter-", "").replace("-40", "@").replace("-2e", ".")
+	result = reconstruct_email(result)
 	return result
+
+def reconstruct_email(name):
+	# Already a valid email
+	if "@" in name:
+		return name
+
+	match = re.match(r"([a-z0-9.-]+?)-([a-z]+(?:-[a-z]+)*)-edu", name)
+	if match:
+		local, domain = match.groups()
+		domain = domain.replace("-", ".")
+		return f"{local}@{domain}.edu"
+	else:
+		return name
 
 def analyze_hours_byns(identifier, data_repo: DataRepository, key_function: Callable[[str], str] = namespace_key_function):
 	"""

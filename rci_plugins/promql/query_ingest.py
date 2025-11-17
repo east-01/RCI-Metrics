@@ -166,7 +166,7 @@ def _stitch(data_repo: DataRepository):
 
     out_data_repo = DataRepository()
 
-    for type in settings["type_strings"]:
+    for type in settings["type_options"]:
         identifiers = data_repo.filter_ids(filter_source_type(type))
         identifiers.sort(key=lambda id: id.start_ts)
 

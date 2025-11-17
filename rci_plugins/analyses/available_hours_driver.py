@@ -61,7 +61,7 @@ class AvailableHoursDriver(AnalysisDriverPlugin):
 
         type = analysis.name.replace("hoursavailable", "")
         if(type != "cpu" and type != "gpu"):
-            raise Exception(f"Not sure how to handle hours available analysis named \"{analysis.name}\" it should by <type>hoursavailable, so we're looking at {type}")
+            raise Exception(f"Not sure how to handle hours available analysis named \"{analysis.name}\" it should by <type>hoursavailable, so we're looking at {type}hoursavailable")
 
         data_repo: DataRepository = prog_data.data_repo
 
