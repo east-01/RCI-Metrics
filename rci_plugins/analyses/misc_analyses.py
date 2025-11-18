@@ -1,7 +1,8 @@
 from plugins.rci_plugins.analyses.summary_driver import SummaryAnalysis
 from plugins.rci_plugins.analyses.impls.namespaces import analyze_uniquens, analyze_all_uniquens
+from plugins.rci_plugins.analyses.impls.usedcapacity import analyze_usedcapacity
 from plugins.rci_plugins.analyses.tidesplit_driver import TideSplitAnalysis, aggregate_tide_split
-from plugins.rci_plugins.rci_identifiers import GrafanaIdentifier, TideSplitIdentifier
+from plugins.rci_plugins.rci_identifiers import GrafanaIdentifier
 from src.builtin_plugins.agg_analysis_driver import AggregateAnalysis
 from src.builtin_plugins.meta_analysis_driver import MetaAnalysis
 from src.builtin_plugins.simple_analysis_driver import SimpleAnalysis
@@ -24,15 +25,17 @@ class MiscAnalyses(AnalysisPlugin):
                 filter=filter_analyis_type("uniquens"),
                 method=analyze_all_uniquens
             ),
+            
+            SummaryAnalysis(
+                name="summary",
+                prereq_analyses=["cpuhours", "gpuhours", "jobstotal", "cpuhourstotal", "gpuhourstotal", "cpujhpodhours", "gpujhpodhours"]
+            ),
+
             MetaAnalysis(
 				name="utilization",
                 prereq_analyses=["cpuhourstotal", "cpuhoursavailable", "gpuhourstotal", "gpuhoursavailable"],
                 key_method=None
 			),
-            SummaryAnalysis(
-                name="summary",
-                prereq_analyses=["cpuhours", "gpuhours", "jobstotal", "cpuhourstotal", "gpuhourstotal", "cpujhpodhours", "gpujhpodhours"]
-            ),
             TideSplitAnalysis(
                 name="tidesplit",
                 prereq_analyses=["cpuhourstotal", "gpuhourstotal", "cpuhoursavailable", "gpuhoursavailable"]
@@ -43,5 +46,12 @@ class MiscAnalyses(AnalysisPlugin):
                 key_method=None,
                 filter=filter_analyis_type("tidesplit"),
                 method=aggregate_tide_split
+            ),
+
+            SimpleAnalysis(
+                name="usedcapacity",
+                prereq_analyses=None,
+                filter=lambda id: filter_type(GrafanaIdentifier)(id) and id.type=="storage",
+                method=analyze_usedcapacity
             )
         ]

@@ -1,5 +1,5 @@
 settings = {
-    "type_options": ["cpu", "gpu"],
+    "type_options": ["cpu", "gpu", "storage"],
     # A dictionary mapping a type option to the type that it appears as in the query
     "type_strings": {
         "cpu": ["cpu"],

@@ -1,7 +1,7 @@
 import os
 import yaml
 
-from plugins.rci_plugins.promql.query_ingest import run
+from plugins.rci_plugins.promql.query_ingest import run, verify_query_config
 from src.data.data_repository import DataRepository
 from src.plugin_mgmt.plugins import IngestPlugin
 from src.program_data import ProgramData
@@ -50,6 +50,8 @@ class PromQLIngestController(IngestPlugin):
                 data = yaml.safe_load(file)
             
             data["cfg_name"] = cfg_name
+
+            verify_query_config(data)
 
             period_list = prog_data.timeline.periods
             if("main-periods" in config_section and config_section["main-periods"] is True):

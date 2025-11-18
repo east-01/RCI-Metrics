@@ -14,6 +14,23 @@ from plugins.rci_plugins.analyses.jobs_analyses import filter_source_type
 from src.data.data_repository import DataRepository
 from src.utils.timeutils import to_unix_ts, get_range_printable
 from src.data.filters import *
+from src.parameter_utils import ConfigurationException
+
+def verify_query_config(query_config):
+    intro = f"Problem with query config \"{query_config["cfg_name"]}\":"
+
+    if("step" not in query_config):
+        raise ConfigurationException(f"{intro} The query config doesn't have a step section. Indicate the step size (in seconds).")
+    if("yieldstypes" not in query_config):
+        raise ConfigurationException(f"{intro} The query config doesn't have a yieldstypes section. yieldstypes section expects a list of possible types from all possible types: {settings["type_options"]}")
+    if(not isinstance(query_config["yieldstypes"], list)):
+        raise ConfigurationException(f"{intro} The yieldstypes section is not in the form of a list. PromQLIngestController yieldstypes section expects a list of possible types from all possible types: {settings["type_options"]}")
+    if(len(query_config["yieldstypes"]) == 0):
+        raise ConfigurationException(f"{intro} The yieldstypes section is empty. At least one yielded type must be provided.")
+    settings_set = set(settings["type_options"])
+    config_set = set(query_config["yieldstypes"])
+    if(not config_set.issubset(settings_set)):
+        raise ConfigurationException(f"{intro} The yieldstypes section had unexpected types: {", ".join(config_set-settings_set)}. Options must be from: {", ".join(settings_set)}")
 
 def run(query_config, period_list):
     """
@@ -28,8 +45,9 @@ def run(query_config, period_list):
 
     cfg_name = query_config["cfg_name"]
     step = query_config["step"]
+    yieldstypes = query_config["yieldstypes"]
     period_cnt = len(period_list)
-    query_count = period_cnt+len(settings["type_options"])*period_cnt
+    query_count = period_cnt+len(yieldstypes)*period_cnt
     print(f"PromQL: Loading data using ingest config \"{cfg_name}\" resulting in {query_count} query/queries.")
 
     for period in period_list:
@@ -51,7 +69,7 @@ def run(query_config, period_list):
 
         status_df = _preprocess_df(status_df_raw, False, step) # Preprocess DF for application
 
-        for type in settings["type_options"]:
+        for type in yieldstypes:
 
             print(f"\r{" "*30}\r", end="", flush=True)
             print(f"\r    Getting {type.upper()}...", end="", flush=True)
