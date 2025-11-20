@@ -26,6 +26,7 @@ PromQLIngestController:
   query-cfgs:
     - monthly
     - jupyterhub
+    - usedcapacity
 AvailableHoursDriver:
   # Information about hardware configurations for each node.
   default:
@@ -49,3 +50,4 @@ SummaryDriver:
 AnalysisSaver:
   whitelist:
     - alluniquens
+    - usedcapacity

@@ -57,18 +57,22 @@ def run(query_config, period_list):
         print(f"  {get_range_printable(period[0], period[1], step)}")
         print(f"\r    Getting status...", end="", flush=True)
 
-        # Pipeline for getting a Grafana type DataFrame from PromQL
-        status_url = build_query_url(query_config, "status", None, period) # Gets the URL for performing the query
-        status_response = perform_query(status_url) # Gets JSON response from web
-        status_df_nonnumeric = transform_query_response(status_response) # Transform the JSON to a DataFrame
-        status_df_raw = convert_to_numeric(status_df_nonnumeric) # Transform DF to numeric
+        status_df = None
+        # Get status DataFrame if it is specified in the query config.
+        if("status" in query_config["queries"]):
+            # Pipeline for getting a Grafana type DataFrame from PromQL
+            status_url = build_query_url(query_config, "status", None, period) # Gets the URL for performing the query
+            status_response = perform_query(status_url) # Gets JSON response from web
+            status_df_nonnumeric = transform_query_response(status_response) # Transform the JSON to a DataFrame
+            status_df_raw = convert_to_numeric(status_df_nonnumeric) # Transform DF to numeric
 
-        if(len(status_df_raw) == 0):
-            print(f" Status empty.")
-            continue
+            if(len(status_df_raw) == 0):
+                print(f" Status empty.")
+                continue
 
-        status_df = _preprocess_df(status_df_raw, False, step) # Preprocess DF for application
+            status_df = _preprocess_df(status_df_raw, False, step) # Preprocess DF for application
 
+        # Look through each type that this query config will yield, running a separate query for each.
         for type in yieldstypes:
 
             print(f"\r{" "*30}\r", end="", flush=True)
@@ -84,12 +88,16 @@ def run(query_config, period_list):
                 print(f" {type.upper()} values empty.")
                 continue
 
-            values_df = _preprocess_df(values_df_raw, True, step)
+            final_values_df = values_df_raw
 
-            print(f"\r{" "*30}\r", end="", flush=True)
-            print(f"\r    Applying status to {type.upper()}...", end="", flush=True)
+            # Apply status DataFrame if it exists
+            if(status_df is not None):
+                values_df = _preprocess_df(values_df_raw, True, step)
+    
+                print(f"\r{" "*30}\r", end="", flush=True)
+                print(f"\r    Applying status to {type.upper()}...", end="", flush=True)
 
-            final_values_df = _apply_status_df(status_df, values_df)
+                final_values_df = _apply_status_df(status_df, values_df)
 
             identifier = GrafanaIdentifier(period[0], period[1], type, cfg_name)
             data_repo.add(identifier, final_values_df)
@@ -191,8 +199,6 @@ def _stitch(data_repo: DataRepository):
         if(len(identifiers) == 0):
             continue
 
-        # The data frame that we're building for the current period; right now the data frames
-        #   are built by month. But we should use Timeline later
         df = pd.DataFrame()
         df_ids = [] # Stores a list of identifiers for this specific dataframe
         last_dt = datetime.datetime.fromtimestamp(identifiers[0].start_ts)

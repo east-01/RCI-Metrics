@@ -1,0 +1,9 @@
+
+base_url: "https://thanos.nrp-nautilus.io/api/v1/query_range"
+step: 3600
+yieldstypes: ["storage"]
+queries: 
+    values: |
+        ceph_cluster_total_used_bytes{
+          namespace =~ "rook-tide"
+        }

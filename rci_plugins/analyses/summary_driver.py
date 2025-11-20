@@ -30,14 +30,15 @@ class SummaryData():
     jobstotal: int
     cpuhourstotal: int
     gpuhourstotal: int
+    usedcapacity: float
     cpu_df: pd.DataFrame
     gpu_df: pd.DataFrame
     cpu_jh_users_df: pd.DataFrame
     gpu_jh_users_df: pd.DataFrame
 
     def __str__(self):
+                # {'\n  '.join(self.summary_df.to_string().split('\n'))}
         return f"""Summary for {self.readable_period}
-                {'\n  '.join(self.summary_df.to_string().split('\n'))}
 
                 {(
                     'Top 5 CPU namespaces:\n    ' + '\n    '.join(self.cpu_df.to_string().split('\n'))
@@ -109,12 +110,15 @@ def get_src_ids(start_ts: int, end_ts: int):
     gpu_src_id = GrafanaIdentifier(start_ts, end_ts, "gpu", "monthly")
     cpu_jh_users_src_id = GrafanaIdentifier(start_ts, end_ts, "cpu", "jupyterhub")
     gpu_jh_users_src_id = GrafanaIdentifier(start_ts, end_ts, "gpu", "jupyterhub")
+    usedcapacity_src_id = GrafanaIdentifier(start_ts, end_ts, "storage", "usedcapacity")
 
-    return cpu_src_id, gpu_src_id, cpu_jh_users_src_id, gpu_jh_users_src_id
+    return cpu_src_id, gpu_src_id, cpu_jh_users_src_id, gpu_jh_users_src_id, usedcapacity_src_id
 
 def generate_analysis(data_repo: DataRepository, config_section: dict, src_ids: tuple) -> SummaryData:
 
-    cpu_src_id, gpu_src_id, cpu_jh_users_src_id, gpu_jh_users_src_id = src_ids
+    cpu_src_id, gpu_src_id, cpu_jh_users_src_id, gpu_jh_users_src_id, usedcapacity_src_id = src_ids
+
+    data_repo.print_contents()
 
     # Collect analysis identifiers
     cpuhours = AnalysisIdentifier(cpu_src_id, "cpuhours")
@@ -129,6 +133,8 @@ def generate_analysis(data_repo: DataRepository, config_section: dict, src_ids: 
     gpujobs = AnalysisIdentifier(gpu_src_id, "gpujobs")
     gpujobstotal = AnalysisIdentifier(gpujobs, "gpujobstotal")
     gpujhhours = AnalysisIdentifier(gpu_jh_users_src_id, "gpujhpodhours")
+
+    usedcapacity_id = AnalysisIdentifier(usedcapacity_src_id, "usedcapacity")
 
     # Shorthand for the get_data method call for readability
     gd = data_repo.get_data
@@ -160,6 +166,7 @@ def generate_analysis(data_repo: DataRepository, config_section: dict, src_ids: 
         jobstotal=gd(jobstotal),
         cpuhourstotal=gd(cpuhourstotal),
         gpuhourstotal=gd(gpuhourstotal),
+        usedcapacity=gd(usedcapacity_id),
         cpu_df=cpu_df,
         gpu_df=gpu_df,
         cpu_jh_users_df=cpu_jh_df,

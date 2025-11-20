@@ -1,0 +1,22 @@
+# Runtime config
+period: January24-lastmonth
+ingest:
+  run:
+    - PromQLIngestController
+analysis:
+  run:
+    - usedcapacity
+saving:
+  base-path: "./io/usedcapacity_latest"
+  exit-action: openeach
+  run:
+    - AnalysisSaver
+
+# Plugin-specific config sections
+PromQLIngestController:
+  main-periods: true
+  query-cfgs:
+    - usedcapacity
+AnalysisSaver:
+  whitelist:
+    - usedcapacity

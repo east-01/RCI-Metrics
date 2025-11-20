@@ -20,14 +20,14 @@ spec:
                 operator: Exists
       containers:
       - name: metrics
-        image: east01/rcimetrics:0.1a
+        image: east01/rcimetrics:0.1b
         resources:
           limits:
             cpu: 6
             memory: 16Gi
           requests:
-            cpu: 4
-            memory: 12Gi
+            cpu: 5
+            memory: 14Gi
         env:
         - name: CONFIG_FILE
           value: ./configs/tidesplit.yaml        

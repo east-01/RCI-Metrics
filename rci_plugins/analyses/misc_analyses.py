@@ -28,7 +28,7 @@ class MiscAnalyses(AnalysisPlugin):
             
             SummaryAnalysis(
                 name="summary",
-                prereq_analyses=["cpuhours", "gpuhours", "jobstotal", "cpuhourstotal", "gpuhourstotal", "cpujhpodhours", "gpujhpodhours"]
+                prereq_analyses=["cpuhours", "gpuhours", "jobstotal", "cpuhourstotal", "gpuhourstotal", "cpujhpodhours", "gpujhpodhours", "usedcapacity"]
             ),
 
             MetaAnalysis(

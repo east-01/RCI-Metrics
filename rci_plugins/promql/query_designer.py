@@ -21,11 +21,12 @@ class QueryData():
 
 def build_query_url(config, query_name, type, period):
     query_string = config["queries"][query_name]
+    type_string_identifier = settings['type_string_identifier']
     
-    if(type is not None):
+    if(type is not None and type_string_identifier in query_string):
         type_strings = settings['type_strings']
         type_string = "|".join(type_strings[type])
-        query_string = query_string.replace(settings['type_string_identifier'], type_string)
+        query_string = query_string.replace(type_string_identifier, type_string)
 
     return build_url(
         config["base_url"], 
