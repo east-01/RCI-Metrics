@@ -5,7 +5,7 @@ queries:
     status: |
         kube_pod_status_phase{
             phase=~"Running|Pending",
-            namespace=~"csusb.*|csu.*|cal-poly-.*|sdsu-.*|csun-.*|nsf-maica",
+            namespace=~"sonoma.*|sfsu.*|sjsu.*|cpp.*|csu.*|cal-poly-.*|sdsu-.*|csun-.*|nsf-maica", 
             namespace!~"sdsu-jupyterhub.*"
         }
     values: |
@@ -13,6 +13,6 @@ queries:
             resource=~"%TYPE_STRING%",
             node=~"rci-tide.*",
             node!~"rci-tide-dtn.*",
-            namespace=~"csusb.*|csu.*|cal-poly-.*|sdsu-.*|csun-.*|nsf-maica",
+            namespace=~"sonoma.*|sfsu.*|sjsu.*|cpp.*|csu.*|cal-poly-.*|sdsu-.*|csun-.*|nsf-maica", 
             namespace!~"sdsu-jupyterhub.*"
         }
