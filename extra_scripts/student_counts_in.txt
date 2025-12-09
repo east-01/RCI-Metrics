@@ -21,7 +21,7 @@
         - peggy.kay@csus.edu
         - tien.tran02@sjsu.edu
         - atul.pala@sjsu.edu
-        - jhg51@humboldt.edu
+        - nxgallo@sdsu.edu
         - adoose@csusm.edu
         - steven.ruiz@csun.edu
         - wayne.smith@csun.edu
@@ -181,6 +181,32 @@
         - rowel.espejo.044@my.csun.edu
         - lia.yaghobi.433@my.csun.edu
         - chanlm@calpoly.edu
+        - shreinerd@sonoma.edu
+        - vsrimath@calpoly.edu
+        - hdpresto@calpoly.edu
+        - lhuang52@calpoly.edu
+        - gillg@sonoma.edu
+        - dcruz66@calpoly.edu
+        - vrosterm@calpoly.edu
+        - bargavi.sivaraman.028@my.csun.edu
+        - odelia.sheelo.857@my.csun.edu
+        - epearse@calpoly.edu
+        - adamwebb@cpp.edu
+        - cjs1@cpp.edu
+        - slarso05@calpoly.edu
+        - ramakrishna.dantu@csus.edu
+        - pujitha.jujjarapu.763@my.csun.edu
+        - arochaja@calpoly.edu
+        - pchobote@calpoly.edu
+        - mseagrav@calpoly.edu
+        - brandonbian@ucla.edu
+        - vaishnavi.sen.312@my.csun.edu
+        - tzzttzz@ucla.edu
+        - bian_bsj@163.com
+        - brandon.ismalej.671@my.csun.edu
+        - abhinav.neelam.591@my.csun.edu
+        - zachary.frappier.132@my.csun.edu
+        - krupaben-alpeshkumar.patel.011@my.csun.edu
 - kkrick@sdsu.edu
         - mfarley@sdsu.edu
         - heli@sdsu.edu
@@ -377,3 +403,27 @@
         - dgordon6514@sdsu.edu
         - wphong2900@sdsu.edu
         - dlvalencia@sdsu.edu
+        - tchipman5401@sdsu.edu
+        - dhamilton2891@sdsu.edu
+        - jscoggins9103@sdsu.edu
+        - dnguyen28@sdsu.edu
+        - skc@sdsu.edu
+        - svelazco@sdsu.edu
+        - tzamro5461@sdsu.edu
+        - rmalouf@sdsu.edu
+        - afrancisco7348@sdsu.edu
+        - hmehta2584@sdsu.edu
+        - schaudhari3817@sdsu.edu
+        - jcarrillo5698@sdsu.edu
+        - lwilkins8001@sdsu.edu
+        - amoraisarantes@sdsu.edu
+        - rrouzbehani4779@sdsu.edu
+        - ashajihan@sdsu.edu 
+        - htoreyin@sdsu.edu
+        - rashe7414@sdsu.edu
+        - mparidar@sdsu.edu
+        - mchitale6540@sdsu.edu
+        - khegde4125@sdsu.edu
+        - hmilles@sdsu.edu
+        - karuth@sdsu.edu
+        - amurphy8438@sdsu.edu

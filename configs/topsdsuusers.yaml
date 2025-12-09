@@ -1,0 +1,33 @@
+# Runtime config
+period: lastmonth
+timeline:
+  align: null
+ingest:
+  run:
+    - PromQLIngestController
+analysis:
+  run:
+    - topsdsuusers_cpu
+    - topsdsuusers_gpu
+    - topsdsunamespaces_cpu
+    - topsdsunamespaces_gpu
+saving:
+  base-path: "./io/topsdsuusers_latest"
+  exit-action: opendir
+  run:
+    - AnalysisSaver
+    - VizualizationsSaver
+    - SummarySaver
+
+# Plugin-specific config sections
+PromQLIngestController:
+  main-periods: false
+  query-cfgs:
+    - monthly
+    - jupyterhub
+AnalysisSaver:
+  whitelist:
+    - topsdsuusers_cpu
+    - topsdsuusers_gpu
+    - topsdsunamespaces_cpu
+    - topsdsunamespaces_gpu

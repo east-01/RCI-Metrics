@@ -5,13 +5,16 @@ import math
 
 from src.utils.timeutils import to_unix_ts, from_unix_ts
 
-def _preprocess_df(df: pd.DataFrame, preserve_columns, step):
+def preprocess_df(df: pd.DataFrame, preserve_columns, step):
     """
     Preprocess a DataFrame. Performs 3 individual steps: filter_cols_zero, merge_columns_on_uid,
         and infer_tiems. See method signatures for details on each step.
     """
 
     df = _filter_cols_zero(df)
+    if(len(df) == 0):
+        return df
+
     df = _merge_columns_on_uid(df, preserve_columns)
     df = _infer_times(df, step)
     return df
@@ -42,6 +45,9 @@ def _merge_columns_on_uid(df: pd.DataFrame, preserve_columns: bool = False):
     Returns:
         pd.DataFrame: The adjusted DataFrame with squashed columns.
     """
+    if(df is None or df.empty):
+        raise Exception("Can't merge columns on UID, df is none or emoty.")
+    
     # Holds string uid key with original column name values
     orig_names = {}
 

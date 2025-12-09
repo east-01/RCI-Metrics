@@ -3,14 +3,13 @@ The Query Executor actually performs the GET request then transforms the returne
   Grafana DF we're expecting.
 """
 
-import datetime
 import json
 import pandas as pd
 import requests
 
 from src.utils.timeutils import from_unix_ts
 
-def perform_query(queryURL):
+def get_query_response(queryURL):
     """
     Perform an HTTP GET request with the queryURL, handle the response and return the DataFrame
     """
@@ -59,7 +58,7 @@ def transform_query_response(query_response):
 
     # 3) One-shot construction of the long DataFrame
     long_df = pd.DataFrame.from_records(records,
-                                        columns=['Time','Metric','Value'])
+                                        columns=['Time', 'Metric', 'Value'])
 
     # 4) Pivot so each metric becomes its own column, outer‐joining on Time
     out_df = long_df.pivot_table(index='Time',
@@ -71,4 +70,11 @@ def transform_query_response(query_response):
     # 5) Convert Unix seconds → datetime once, vectorized
     out_df['Time'] = out_df['Time'].map(from_unix_ts)
 
+    out_df = _convert_to_numeric(out_df)
+
     return out_df
+
+def _convert_to_numeric(df: pd.DataFrame):
+    # Convert the data frame to numeric values so we can properly analyze it later.
+    df.iloc[:, 1:] = df.iloc[:, 1:].map(pd.to_numeric, errors="coerce")
+    return df

@@ -1,3 +1,4 @@
+from plugins.rci_plugins.analyses.select_sorted_driver import SelectSortedAnalysis
 from plugins.rci_plugins.analyses.summary_driver import SummaryAnalysis
 from plugins.rci_plugins.analyses.impls.namespaces import analyze_uniquens, analyze_all_uniquens
 from plugins.rci_plugins.analyses.impls.usedcapacity import analyze_usedcapacity
@@ -8,6 +9,12 @@ from src.builtin_plugins.meta_analysis_driver import MetaAnalysis
 from src.builtin_plugins.simple_analysis_driver import SimpleAnalysis
 from src.data.filters import *
 from src.plugin_mgmt.plugins import AnalysisPlugin
+
+import pandas as pd
+def filter_sdsu_emails(row: pd.Series):
+    return row["Namespace"].endswith("@sdsu.edu")
+def filter_sdsu_namespaces(row: pd.Series):
+    return row["Namespace"].startswith("sdsu-")
 
 class MiscAnalyses(AnalysisPlugin):
     def get_analyses(self):
@@ -53,5 +60,46 @@ class MiscAnalyses(AnalysisPlugin):
                 prereq_analyses=None,
                 filter=lambda id: filter_type(GrafanaIdentifier)(id) and id.type=="storage",
                 method=analyze_usedcapacity
+            ),
+
+            SelectSortedAnalysis(
+                name="topsdsuusers_cpu",
+                prereq_analyses=["cpujhpodhours"],
+                filter=lambda id: filter_analyis_type("cpujhpodhours")(id) and id.find_base().query_cfg == "jupyterhub",
+                filter_col_name="Namespace",
+                filter_col_method=filter_sdsu_emails,
+                rank_col_name="Hours",
+                rank_col_ascending=False,
+                keep_n=10
+            ),
+            SelectSortedAnalysis(
+                name="topsdsuusers_gpu",
+                prereq_analyses=["gpujhpodhours"],
+                filter=lambda id: filter_analyis_type("gpujhpodhours")(id) and id.find_base().query_cfg == "jupyterhub",
+                filter_col_name="Namespace",
+                filter_col_method=filter_sdsu_emails,
+                rank_col_name="Hours",
+                rank_col_ascending=False,
+                keep_n=10
+            ),
+            SelectSortedAnalysis(
+                name="topsdsunamespaces_cpu",
+                prereq_analyses=["cpuhours"],
+                filter=lambda id: filter_analyis_type("cpuhours")(id) and id.find_base().query_cfg == "monthly",
+                filter_col_name="Namespace",
+                filter_col_method=filter_sdsu_namespaces,
+                rank_col_name="Hours",
+                rank_col_ascending=False,
+                keep_n=10
+            ),
+            SelectSortedAnalysis(
+                name="topsdsunamespaces_gpu",
+                prereq_analyses=["gpuhours"],
+                filter=lambda id: filter_analyis_type("gpuhours")(id) and id.find_base().query_cfg == "monthly",
+                filter_col_name="Namespace",
+                filter_col_method=filter_sdsu_namespaces,
+                rank_col_name="Hours",
+                rank_col_ascending=False,
+                keep_n=10
             )
         ]

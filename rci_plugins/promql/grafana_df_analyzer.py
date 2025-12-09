@@ -4,11 +4,6 @@ import pandas as pd
 from plugins.rci_plugins.promql.settings import settings
 from src.utils.timeutils import to_unix_ts
 
-def convert_to_numeric(df: pd.DataFrame):
-    # Convert the data frame to numeric values so we can properly analyze it later.
-    df.iloc[:, 1:] = df.iloc[:, 1:].map(pd.to_numeric, errors="coerce")
-    return df
-
 def _extract_column_data(col_name):
     """
     Given a column name with the format {label1="value1", label2="value2",...} break it down into a

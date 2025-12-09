@@ -8,15 +8,20 @@ import os
 from plugins.rci_plugins.promql.query_designer import *
 from plugins.rci_plugins.promql.query_executor import *
 from plugins.rci_plugins.promql.grafana_df_analyzer import *
-from plugins.rci_plugins.promql.query_preprocess import _preprocess_df
-from plugins.rci_plugins.rci_identifiers import GrafanaIdentifier
-from plugins.rci_plugins.analyses.jobs_analyses import filter_source_type
-from src.data.data_repository import DataRepository
+from plugins.rci_plugins.promql.query_preprocess import preprocess_df
 from src.utils.timeutils import to_unix_ts, get_range_printable
 from src.data.filters import *
 from src.parameter_utils import ConfigurationException
 
 def verify_query_config(query_config):
+    """
+    Verify that the query configuration has the proper format.
+
+    Query config expects:
+        step: int (seconds)
+        yieldstypes: list of strings (from settings["type_options"])
+    """
+
     intro = f"Problem with query config \"{query_config["cfg_name"]}\":"
 
     if("step" not in query_config):
@@ -32,88 +37,50 @@ def verify_query_config(query_config):
     if(not config_set.issubset(settings_set)):
         raise ConfigurationException(f"{intro} The yieldstypes section had unexpected types: {", ".join(config_set-settings_set)}. Options must be from: {", ".join(settings_set)}")
 
-def run(query_config, period_list):
+class DataFramePullException(Exception):
+    """ Exception raised when there is an issue pulling a DataFrame from PromQL. """
+    pass
+
+def run(query_config, type, period, cached_status_dfs):
     """
     Run this query config over the provided period list. Gets the status, cpu values, and gpu
         values DataFrames and then applies processing steps on them.
     """
 
-    # The data repository that holds GrafanaIdentifiers, this is different from the
-    #   standard DataRepository because there are multiple queries per period and type, to be
-    #   used in the processing step where we only get pending/running pods.
-    data_repo: DataRepository = DataRepository()
+    start_ts, end_ts = period
 
-    cfg_name = query_config["cfg_name"]
-    step = query_config["step"]
-    yieldstypes = query_config["yieldstypes"]
-    period_cnt = len(period_list)
-    query_count = period_cnt+len(yieldstypes)*period_cnt
-    print(f"PromQL: Loading data using ingest config \"{cfg_name}\" resulting in {query_count} query/queries.")
-
-    for period in period_list:
-
-        start_time = time.time()
-
-        print(f"  {get_range_printable(period[0], period[1], step)}")
-        print(f"\r    Getting status...", end="", flush=True)
-
-        status_df = None
-        # Get status DataFrame if it is specified in the query config.
-        if("status" in query_config["queries"]):
-            # Pipeline for getting a Grafana type DataFrame from PromQL
+    requires_status = "status" in query_config["queries"]
+    # Get status DataFrame if it is specified in the query config.
+    if(requires_status):
+        cache_id = (query_config["cfg_name"], start_ts, end_ts)
+        # tqdm.write(str(cache_id))
+        if(cache_id not in cached_status_dfs):
             status_url = build_query_url(query_config, "status", None, period) # Gets the URL for performing the query
-            status_response = perform_query(status_url) # Gets JSON response from web
-            status_df_nonnumeric = transform_query_response(status_response) # Transform the JSON to a DataFrame
-            status_df_raw = convert_to_numeric(status_df_nonnumeric) # Transform DF to numeric
+            status_response = get_query_response(status_url) # Gets JSON response from web
+            status_df_raw = transform_query_response(status_response) # Transform the JSON to a DataFrame
+            cached_status_dfs[cache_id] = preprocess_df(status_df_raw, False, query_config["step"]) # Preprocess DF for application
+            
+        status_df = cached_status_dfs[cache_id]
 
-            if(len(status_df_raw) == 0):
-                print(f" Status empty.")
-                continue
+        if(len(status_df) == 0):
+            raise DataFramePullException(f"Status DataFrame pulled for query config \"{query_config['cfg_name']}\" over period {get_range_printable(start_ts, end_ts)} is empty, cannot proceed with applying status filter to values DataFrame.")
+    else:
+        status_df = None
 
-            status_df = _preprocess_df(status_df_raw, False, step) # Preprocess DF for application
+    # The same pipeline as above
+    values_url = build_query_url(query_config, "values", type, period)
+    values_response = get_query_response(values_url)
+    values_df = transform_query_response(values_response)
 
-        # Look through each type that this query config will yield, running a separate query for each.
-        for type in yieldstypes:
+    if(len(values_df) == 0):
+        raise DataFramePullException(f"Values DataFrame pulled for query config \"{query_config['cfg_name']}\" type \"{type}\" over period {get_range_printable(start_ts, end_ts)} is empty.")
 
-            print(f"\r{" "*30}\r", end="", flush=True)
-            print(f"\r    Getting {type.upper()}...", end="", flush=True)
+    # Apply status DataFrame if it exists
+    if(requires_status):
+        values_df = preprocess_df(values_df, True, query_config["step"])
+        values_df = _apply_status_df(status_df, values_df)
 
-            # The same pipeline as above
-            values_url = build_query_url(query_config, "values", type, period)
-            values_response = perform_query(values_url)
-            values_df_nonnumeric = transform_query_response(values_response)
-            values_df_raw = convert_to_numeric(values_df_nonnumeric)
-
-            if(len(values_df_raw) == 0):
-                print(f" {type.upper()} values empty.")
-                continue
-
-            final_values_df = values_df_raw
-
-            # Apply status DataFrame if it exists
-            if(status_df is not None):
-                values_df = _preprocess_df(values_df_raw, True, step)
-    
-                print(f"\r{" "*30}\r", end="", flush=True)
-                print(f"\r    Applying status to {type.upper()}...", end="", flush=True)
-
-                final_values_df = _apply_status_df(status_df, values_df)
-
-            identifier = GrafanaIdentifier(period[0], period[1], type, cfg_name)
-            data_repo.add(identifier, final_values_df)
-
-        print(f"\r{" "*30}\r", end="", flush=True)
-        print(f"\r    Took {(time.time()-start_time):.2f}s")
-
-    print("  Stitching...", end="", flush=True)
-
-    start_time = time.time()
-    data_repo = _stitch(data_repo)
-
-    print(f"\r{" "*30}\r", end="", flush=True)
-    print(f"\r  Stitching took {(time.time()-start_time):.2f} seconds.")
-
-    return data_repo
+    return values_df
 
 def _apply_status_df(status_df, values_df):
     """
@@ -141,11 +108,14 @@ def _apply_status_df(status_df, values_df):
         else:
             raise Exception(f"Failed to read uid in column name \"{string}\"")
 
+    # Strip start and end timestamps from the values DataFrame
     start_ts = to_unix_ts(values_df["Time"][0])
     end_ts = to_unix_ts(list(values_df["Time"])[-1])
 
+    # Get the list of timestamps from the status DataFrame
     times_list = [to_unix_ts(time) for time in status_df["Time"]]
 
+    # Determine the indexes (row numbers) of the start and end timestamps in the status DataFrame
     try:
         start_index = times_list.index(start_ts)
     except ValueError:
@@ -176,61 +146,3 @@ def _apply_status_df(status_df, values_df):
     values_df.drop(columns=drop_columns, inplace=True)
 
     return values_df
-
-def _stitch(data_repo: DataRepository):
-    """
-    Stitch multiple periods of identifiers together. For example, if the data is broken down into
-        week-long periods, stitch will join together the weeks into months.
-
-    Args:
-        data_repo (DataRepository): The input repository, contains GrafanaIdentifiers to
-            be transformed.
-    
-    Returns:
-        DataRepository: The output DataRepository, contains SourceIdentifiers.
-    """
-
-    out_data_repo = DataRepository()
-
-    for type in settings["type_options"]:
-        identifiers = data_repo.filter_ids(filter_source_type(type))
-        identifiers.sort(key=lambda id: id.start_ts)
-
-        if(len(identifiers) == 0):
-            continue
-
-        df = pd.DataFrame()
-        df_ids = [] # Stores a list of identifiers for this specific dataframe
-        last_dt = datetime.datetime.fromtimestamp(identifiers[0].start_ts)
-
-        # Store the current data frame
-        def store_df():
-            nonlocal df, df_ids
-
-            new_identifier = GrafanaIdentifier(df_ids[0].start_ts, df_ids[-1].end_ts, df_ids[0].type, df_ids[0].query_cfg)
-            out_data_repo.add(new_identifier, df)
-
-        def reset_df():
-            nonlocal df, df_ids
-
-            df = pd.DataFrame()
-            df_ids = []
-
-        for identifier in identifiers:
-
-            # If the current month and year do not match the existing dataframe's month and year,
-            #   switch to a new df
-            curr_dt = datetime.datetime.fromtimestamp(identifier.start_ts)
-            if((curr_dt.month, curr_dt.year) != (last_dt.month, last_dt.year)):
-                store_df()
-                reset_df()
-
-            last_dt = curr_dt
-
-            df_toadd = data_repo.get_data(identifier)
-            df = pd.concat([df, df_toadd], ignore_index=True, sort=False)
-            df_ids.append(identifier)
-
-        store_df()
-
-    return out_data_repo

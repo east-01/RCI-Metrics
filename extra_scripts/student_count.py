@@ -1,8 +1,8 @@
 import pandas as pd
 
 ##### SETTINGS ####
-in_filepath = "./src/extra_scripts/student_counts_in.txt"
-out_filepath = "./src/extra_scripts/student_counts.xlsx"
+in_filepath = "student_counts_in.txt"
+out_filepath = "student_counts.xlsx"
 email_strips = ["my.", ".edu"]
 order = {
     "sdsu": [],

@@ -66,7 +66,7 @@ class SummaryData():
                 """
 
 class SummaryDriver(AnalysisDriverPlugin):
-    # Workaround to point to the global definition of SummaryAnalysis instead of the file definition
+    # pkg. is a workaround to point to the global definition of SummaryAnalysis instead of the file definition
     SERVED_TYPE=pkg.SummaryAnalysis
 
     def verify_config_section(self, config_section):
@@ -98,7 +98,7 @@ class SummaryDriver(AnalysisDriverPlugin):
             src_ids = get_src_ids(start_ts, end_ts)
             for src_id in src_ids:
                 if(not data_repo.contains(src_id)):
-                    raise ValueError(f"Can't summarize {start_ts}-{end_ts} the data_repo is missing expected identifier: {src_id}.")                
+                    raise ValueError(f"Can't summarize {get_range_printable(start_ts, end_ts)} the data_repo is missing expected identifier: {src_id}.")                
             
             summary_data = generate_analysis(data_repo, config_section, src_ids)
             data_repo.add(summary_id, summary_data)
@@ -117,8 +117,6 @@ def get_src_ids(start_ts: int, end_ts: int):
 def generate_analysis(data_repo: DataRepository, config_section: dict, src_ids: tuple) -> SummaryData:
 
     cpu_src_id, gpu_src_id, cpu_jh_users_src_id, gpu_jh_users_src_id, usedcapacity_src_id = src_ids
-
-    data_repo.print_contents()
 
     # Collect analysis identifiers
     cpuhours = AnalysisIdentifier(cpu_src_id, "cpuhours")
