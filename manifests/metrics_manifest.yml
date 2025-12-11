@@ -20,7 +20,7 @@ spec:
                 operator: Exists
       containers:
       - name: metrics
-        image: east01/rcimetrics:0.1b
+        image: east01/rcimetrics:0.1d
         resources:
           limits:
             cpu: 6
