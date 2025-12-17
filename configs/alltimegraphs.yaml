@@ -1,5 +1,8 @@
 # Runtime config
-period: January24-lastmonth
+period: ytd-lastmonth
+timeline:
+  align: month
+  sub_period_max_len: 302400 # Half a week
 ingest:
   run:
     - PromQLIngestController
@@ -11,13 +14,12 @@ analysis:
     - viscpuhoursmeta
     - visgpuhoursmeta
     - viscvgpuhours
+    - viscvgpujobs
 saving:
   base-path: "./io/alltimegraphs_latest"
   exit-action: opendir
   run:
-    - AnalysisSaver
     - VizualizationsSaver
-    - SummarySaver
 
 # Plugin-specific config sections
 PromQLIngestController:

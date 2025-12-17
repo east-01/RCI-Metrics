@@ -1,5 +1,8 @@
 # Runtime config
 period: ytd-lastmonth
+timeline:
+  align: month
+  sub_period_max_len: 302400 # Half a week
 ingest:
   run:
     - PromQLIngestController
